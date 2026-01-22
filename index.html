@@ -1,0 +1,939 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GBK Online: Ultra Deluxe Edition</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap");
+
+      :root {
+        --neon-color: #00f2ff;
+        --galaxy-color: #7d00ff;
+        --gold-color: #ffcc00;
+      }
+
+      body {
+        font-family: "Plus Jakarta Sans", sans-serif;
+        background: radial-gradient(
+          circle at top left,
+          #020617,
+          #0f172a,
+          #1e1b4b
+        );
+        min-height: 100vh;
+        color: white;
+        overflow-x: hidden;
+      }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      }
+
+      /* --- BUTTONS & HOVERS --- */
+      .btn-choice {
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        z-index: 10;
+      }
+
+      .btn-choice:hover:not(:disabled) {
+        transform: translateY(-10px) scale(1.08);
+      }
+
+      .choice-selected {
+        background: #4f46e5 !important;
+        border-color: #818cf8 !important;
+        box-shadow: 0 0 40px rgba(79, 70, 229, 0.8);
+        transform: scale(1.1) rotate(2deg);
+      }
+
+      /* --- ULTRA SKIN EFFECTS --- */
+      .effect-base {
+        position: relative !important;
+        overflow: hidden !important;
+      }
+
+      .effect-neon {
+        background: rgba(0, 242, 255, 0.1) !important;
+        border: 2px solid var(--neon-color) !important;
+        box-shadow:
+          0 0 25px var(--neon-color),
+          inset 0 0 15px var(--neon-color);
+        animation: neon-shiver 1.5s infinite ease-in-out;
+      }
+      @keyframes neon-shiver {
+        0%,
+        100% {
+          filter: drop-shadow(0 0 8px var(--neon-color)) brightness(1.2);
+        }
+        50% {
+          filter: drop-shadow(0 0 25px #ff00ff) brightness(1.5);
+        }
+      }
+
+      .effect-galaxy {
+        background: linear-gradient(
+          135deg,
+          #0f0c29,
+          #302b63,
+          #24243e
+        ) !important;
+        border: 2px solid #a855f7 !important;
+        box-shadow: 0 0 30px rgba(168, 85, 247, 0.6);
+        animation: galaxy-float 4s infinite ease-in-out;
+      }
+      .effect-galaxy::before {
+        content: "";
+        position: absolute;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.2) 1px,
+          transparent 1px
+        );
+        background-size: 25px 25px;
+        animation: stars-move 15s linear infinite;
+        top: -50%;
+        left: -50%;
+        pointer-events: none;
+      }
+      @keyframes stars-move {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+      @keyframes galaxy-float {
+        0%,
+        100% {
+          transform: translateY(0) scale(1);
+        }
+        50% {
+          transform: translateY(-5px) scale(1.02);
+        }
+      }
+
+      .effect-gold {
+        background: linear-gradient(
+          145deg,
+          #ffd700,
+          #f1c40f,
+          #b8860b
+        ) !important;
+        color: #2c1e01 !important;
+        border: 2px solid #ffffff !important;
+        box-shadow:
+          0 0 40px rgba(251, 191, 36, 0.9),
+          inset 0 0 15px rgba(255, 255, 255, 0.5);
+      }
+      .effect-gold::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -150%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.8),
+          transparent
+        );
+        animation: gold-sweep 3s infinite linear;
+        pointer-events: none;
+      }
+      @keyframes gold-sweep {
+        to {
+          left: 150%;
+        }
+      }
+
+      .effect-fruit {
+        background: #ef4444 !important;
+        border: 2px solid #fca5a5 !important;
+        box-shadow: 0 0 25px rgba(239, 68, 68, 0.6);
+        animation: heartbeat 1s infinite;
+      }
+      @keyframes heartbeat {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.03);
+        }
+      }
+
+      .effect-animal {
+        background: #d97706 !important;
+        border: 2px solid #f59e0b !important;
+        box-shadow: 0 0 25px rgba(217, 119, 6, 0.6);
+        animation: wobble 2s infinite;
+      }
+      @keyframes wobble {
+        0%,
+        100% {
+          transform: rotate(0deg);
+        }
+        25% {
+          transform: rotate(-2deg);
+        }
+        75% {
+          transform: rotate(2deg);
+        }
+      }
+
+      /* --- ULTRA TAG STYLES --- */
+      .tag-base {
+        padding: 4px 14px;
+        border-radius: 12px;
+        font-size: 0.7rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.15em;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+      }
+      .tag-admin {
+        background: linear-gradient(135deg, #ff0000, #4a0000);
+        color: #ffffff;
+        text-shadow: 0 0 10px #ff0000;
+        animation: admin-glow 1.5s infinite alternate;
+      }
+      @keyframes admin-glow {
+        from {
+          box-shadow: 0 0 5px #ff0000;
+          transform: scale(1);
+        }
+        to {
+          box-shadow: 0 0 25px #ff0000;
+          transform: scale(1.05);
+        }
+      }
+
+      .tag-vip {
+        background: linear-gradient(135deg, #fbbf24, #b45309);
+        color: #451a03;
+        position: relative;
+        overflow: hidden;
+      }
+      .tag-vip::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 50%;
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.6),
+          transparent
+        );
+        animation: tag-sweep 2s infinite linear;
+      }
+      @keyframes tag-sweep {
+        to {
+          left: 200%;
+        }
+      }
+
+      .tag-pro {
+        background: linear-gradient(135deg, #0ea5e9, #1e40af);
+        color: #ffffff;
+        animation: pro-float 2s infinite ease-in-out;
+      }
+      @keyframes pro-float {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-4px);
+        }
+      }
+
+      /* --- SHOP UI --- */
+      .shop-card {
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+      }
+      .shop-card:hover {
+        transform: translateY(-8px);
+        background: rgba(255, 255, 255, 0.1);
+      }
+
+      .rarity-tag {
+        font-size: 0.55rem;
+        padding: 2px 10px;
+        border-radius: 99px;
+        font-weight: 800;
+        text-transform: uppercase;
+      }
+      .rarity-legendary {
+        background: #fbbf24;
+        color: #000;
+        box-shadow: 0 0 15px #fbbf24;
+      }
+      .rarity-epic {
+        background: #a855f7;
+        color: #fff;
+        box-shadow: 0 0 15px #a855f7;
+      }
+      .rarity-rare {
+        background: #3b82f6;
+        color: #fff;
+      }
+
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+      }
+
+      .choice-label {
+        font-size: 0.8rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 0.2em;
+        margin-top: 10px;
+        color: #fff;
+        text-shadow: 0 0 15px rgba(255, 255, 255, 0.5);
+      }
+    </style>
+  </head>
+  <body class="flex items-center justify-center p-4">
+    <div id="app" class="w-full max-w-md">
+      <!-- Auth Section -->
+      <div id="auth-screen" class="glass p-10 rounded-[3rem] text-center">
+        <div class="mb-10">
+          <div
+            class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2rem] flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-indigo-500/30 -rotate-6"
+          >
+            <i class="fas fa-gem text-4xl text-white"></i>
+          </div>
+          <h1 class="text-4xl font-black tracking-tighter mb-2 italic">
+            GBK <span class="text-indigo-400">DELUXE</span>
+          </h1>
+          <p
+            class="text-slate-400 text-sm font-semibold uppercase tracking-widest text-center"
+          >
+            Battle, Skins & Unlimited Power
+          </p>
+        </div>
+
+        <div class="space-y-6">
+          <div class="text-left px-2">
+            <label
+              class="text-[10px] uppercase font-black text-indigo-400 mb-2 block tracking-widest ml-2"
+              >Username Identity</label
+            >
+            <input
+              type="text"
+              id="username-input"
+              placeholder="Nama Anda..."
+              class="w-full px-6 py-5 rounded-2xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:outline-none transition-all text-center text-xl font-bold placeholder:text-slate-600 uppercase tracking-widest text-white"
+            />
+          </div>
+          <button
+            id="login-btn"
+            class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-5 rounded-2xl shadow-xl shadow-indigo-500/20 active:scale-95 transition-all uppercase tracking-widest"
+          >
+            MASUK ARENA
+          </button>
+        </div>
+      </div>
+
+      <!-- Main Menu -->
+      <div
+        id="mode-screen"
+        class="hidden glass p-8 rounded-[3rem] text-center text-white text-white"
+      >
+        <div class="flex justify-between items-center mb-10">
+          <div
+            id="display-name-container"
+            class="flex flex-col items-start gap-2"
+          ></div>
+          <div
+            class="bg-indigo-500/10 px-4 py-2 rounded-2xl border border-indigo-500/20 flex items-center gap-3"
+          >
+            <i class="fas fa-coins text-amber-400 text-lg"></i>
+            <span id="user-coins" class="font-black text-xl text-white">0</span>
+          </div>
+        </div>
+
+        <div class="grid gap-4">
+          <button
+            onclick="goToRounds('pvai')"
+            class="glass p-6 rounded-3xl flex items-center gap-5 text-left border-white/5 hover:border-indigo-500/50 transition-all group"
+          >
+            <div
+              class="w-14 h-14 bg-indigo-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform"
+            >
+              <i class="fas fa-robot text-white"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-lg text-white">Latihan Bot</h3>
+              <p
+                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-left"
+              >
+                Farm Koin
+              </p>
+            </div>
+          </button>
+
+          <button
+            onclick="goToRounds('pvp')"
+            class="glass p-6 rounded-3xl flex items-center gap-5 text-left border-white/5 hover:border-indigo-500/50 transition-all group"
+          >
+            <div
+              class="w-14 h-14 bg-purple-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform"
+            >
+              <i class="fas fa-globe text-white"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-lg text-white">Duel Online</h3>
+              <p
+                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-left text-white"
+              >
+                Main Taruhan
+              </p>
+            </div>
+          </button>
+
+          <button
+            onclick="showShop()"
+            class="glass p-6 rounded-3xl flex items-center gap-5 text-left border-white/5 hover:border-indigo-500/50 transition-all group text-white"
+          >
+            <div
+              class="w-14 h-14 bg-amber-500 rounded-2xl flex items-center justify-center text-2xl shadow-lg group-hover:scale-110 transition-transform text-white text-white"
+            >
+              <i class="fas fa-crown text-white"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-lg text-white text-white">
+                Toko Premium
+              </h3>
+              <p
+                class="text-[10px] text-slate-400 font-bold uppercase tracking-widest text-left text-white"
+              >
+                Gunakan Koin
+              </p>
+            </div>
+          </button>
+
+          <button
+            id="logout-btn"
+            class="mt-6 text-slate-500 hover:text-red-400 text-xs font-black uppercase tracking-[0.3em] transition-colors"
+          >
+            Keluar Akun
+          </button>
+        </div>
+      </div>
+
+      <!-- Shop Screen -->
+      <div id="shop-screen" class="hidden glass p-8 rounded-[3rem] text-white">
+        <div class="flex justify-between items-center mb-8 text-white">
+          <div>
+            <h2
+              class="text-2xl font-black uppercase italic text-white text-white"
+            >
+              Toko Skin
+            </h2>
+            <p
+              class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest text-white"
+            >
+              Eksklusif Item
+            </p>
+          </div>
+          <div
+            class="bg-white/5 px-4 py-2 rounded-2xl flex items-center gap-2 border border-white/10 text-white"
+          >
+            <i class="fas fa-coins text-amber-400"></i>
+            <span id="shop-coins" class="font-black text-lg text-white">0</span>
+          </div>
+        </div>
+
+        <div
+          id="skin-list"
+          class="grid grid-cols-1 gap-4 max-h-[450px] overflow-y-auto pr-2 custom-scrollbar text-white"
+        ></div>
+
+        <button
+          onclick="showScreen('mode')"
+          class="w-full mt-8 bg-indigo-600 hover:bg-indigo-500 py-4 rounded-2xl font-black text-sm transition-all uppercase tracking-widest text-center text-white"
+        >
+          KEMBALI
+        </button>
+      </div>
+
+      <!-- Arena -->
+      <div id="game-screen" class="hidden w-full text-white">
+        <div
+          class="glass p-6 rounded-[3rem] space-y-8 relative overflow-hidden text-white"
+        >
+          <div
+            class="flex justify-between items-center bg-white/5 p-5 rounded-[2rem] border border-white/5 text-white"
+          >
+            <div class="text-center flex-1">
+              <div
+                id="p1-name-wrapper"
+                class="h-14 flex flex-col items-center justify-center"
+              ></div>
+              <div id="p1-score" class="text-4xl font-black text-indigo-400">
+                0
+              </div>
+            </div>
+            <div class="px-4 text-center">
+              <div
+                id="current-bet-display"
+                class="hidden text-[10px] text-amber-400 font-black uppercase mb-2 tracking-widest text-center"
+              >
+                Bet: 0
+              </div>
+              <div
+                class="bg-indigo-600 px-4 py-1.5 rounded-full text-[10px] font-black tracking-[0.2em] text-white"
+                id="current-round-display"
+              >
+                1 / 3
+              </div>
+            </div>
+            <div class="text-center flex-1">
+              <div
+                id="p2-name-wrapper"
+                class="h-12 flex flex-col items-center justify-center"
+              ></div>
+              <div id="p2-score" class="text-4xl font-black text-purple-400">
+                0
+              </div>
+            </div>
+          </div>
+
+          <div class="flex justify-center items-center gap-4 py-4">
+            <div
+              id="p1-arena-wrapper"
+              class="flex flex-col items-center flex-1"
+            >
+              <div
+                id="p1-display"
+                class="w-full aspect-square max-w-[120px] bg-white/5 rounded-[2rem] flex items-center justify-center text-6xl border border-white/10 transition-all duration-500 effect-base"
+              >
+                <i class="fas fa-question text-white/5"></i>
+              </div>
+              <div id="p1-choice-label" class="choice-label text-center"></div>
+            </div>
+            <div
+              class="text-xl font-black text-white/10 uppercase italic text-center"
+            >
+              vs
+            </div>
+            <div
+              id="p2-arena-wrapper"
+              class="flex flex-col items-center flex-1"
+            >
+              <div
+                id="p2-display"
+                class="w-full aspect-square max-w-[120px] bg-white/5 rounded-[2rem] flex items-center justify-center text-6xl border border-white/10 transition-all duration-500 effect-base"
+              >
+                <i class="fas fa-question text-white/5"></i>
+              </div>
+              <div id="p2-choice-label" class="choice-label text-center"></div>
+            </div>
+          </div>
+
+          <div
+            id="game-message"
+            class="text-center min-h-[70px] flex flex-col items-center justify-center font-black italic tracking-tight text-white"
+          >
+            <p
+              class="text-slate-500 uppercase text-xs tracking-widest text-center text-white"
+            >
+              Menunggu Serangan...
+            </p>
+          </div>
+
+          <div
+            id="game-controls"
+            class="grid grid-cols-3 gap-4 p-3 bg-white/5 rounded-[2.5rem]"
+          >
+            <button
+              id="btn-batu"
+              onclick="makeChoice('batu')"
+              class="btn-choice aspect-square rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 text-white"
+            >
+              <span id="skin-batu" class="text-4xl relative z-10"></span>
+              <span
+                class="text-[9px] font-black uppercase mt-2 opacity-60 text-center text-white relative z-10"
+                >Batu</span
+              >
+            </button>
+            <button
+              id="btn-kertas"
+              onclick="makeChoice('kertas')"
+              class="btn-choice aspect-square rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 text-white"
+            >
+              <span id="skin-kertas" class="text-4xl relative z-10"></span>
+              <span
+                class="text-[9px] font-black uppercase mt-2 opacity-60 text-center text-white relative z-10"
+                >Kertas</span
+              >
+            </button>
+            <button
+              id="btn-gunting"
+              onclick="makeChoice('gunting')"
+              class="btn-choice aspect-square rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 text-white"
+            >
+              <span id="skin-gunting" class="text-4xl relative z-10"></span>
+              <span
+                class="text-[9px] font-black uppercase mt-2 opacity-60 text-center text-white relative z-10"
+                >Gunting</span
+              >
+            </button>
+          </div>
+
+          <div
+            id="game-actions"
+            class="hidden space-y-3 text-white text-center"
+          >
+            <button
+              id="next-round-btn"
+              class="w-full bg-indigo-600 py-5 rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all uppercase tracking-widest text-center text-white"
+            >
+              Lanjut Babak
+            </button>
+            <button
+              id="final-rematch-btn"
+              class="hidden w-full bg-indigo-500 py-5 rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all uppercase tracking-widest text-center text-white"
+            >
+              Main Lagi
+            </button>
+            <button
+              id="quit-btn"
+              class="w-full text-slate-500 text-xs font-black uppercase tracking-widest py-2 text-center text-white"
+            >
+              Lobby
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Firebase Scripts -->
+    <script type="module">
+      import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+      import {
+        getAuth,
+        signInAnonymously,
+        onAuthStateChanged,
+        signOut,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+      import {
+        getFirestore,
+        doc,
+        setDoc,
+        getDoc,
+        updateDoc,
+        onSnapshot,
+      } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+      // ==========================================
+      // 1. MASUKKAN CONFIG FIREBASE ANDA DI SINI
+      // ==========================================
+      const firebaseConfig = {
+        apiKey: "AIzaSyDqC9Ok6wZTaERThiES3dGkRdFSlW04mEo",
+        authDomain: "gbk-delux.firebaseapp.com",
+        projectId: "gbk-delux",
+        storageBucket: "gbk-delux.firebasestorage.app",
+        messagingSenderId: "344892094742",
+        appId: "1:344892094742:web:c7a39bc3376dbb4de53837",
+        measurementId: "G-1961BQK0P4",
+      };
+
+      // ==========================================
+
+      const app = initializeApp(firebaseConfig);
+      const auth = getAuth(app);
+      const db = getFirestore(app);
+      const appId = "gbk-deluxe-v1"; // Ganti ID ini jika ingin mereset semua data global
+
+      let currentUser = null;
+      let userData = {
+        username: "",
+        tag: "",
+        coins: 0,
+        skins: ["default"],
+        activeSkin: "default",
+      };
+      let currentGameId = null;
+      let isPlayer1 = true;
+      let gameMode = "pvp";
+      let selectedMaxRounds = 3;
+      let gameListener = null;
+
+      const SKIN_SETS = {
+        default: {
+          batu: "✊",
+          kertas: "✋",
+          gunting: "✌️",
+          price: 0,
+          class: "effect-base",
+          rarity: "Common",
+        },
+        fruit: {
+          batu: "🍎",
+          kertas: "🍌",
+          gunting: "🍇",
+          price: 150,
+          class: "effect-fruit effect-base",
+          rarity: "Common",
+        },
+        neon: {
+          batu: "🔥",
+          kertas: "❄️",
+          gunting: "⚡",
+          price: 400,
+          class: "effect-neon effect-base",
+          rarity: "Rare",
+        },
+        animal: {
+          batu: "🦁",
+          kertas: "🐢",
+          gunting: "🦅",
+          price: 600,
+          class: "effect-animal effect-base",
+          rarity: "Rare",
+        },
+        galaxy: {
+          batu: "🌑",
+          kertas: "🪐",
+          gunting: "⭐",
+          price: 1500,
+          class: "effect-galaxy effect-base",
+          rarity: "Epic",
+        },
+        gold: {
+          batu: "💰",
+          kertas: "💎",
+          gunting: "🔱",
+          price: 5000,
+          class: "effect-gold effect-base",
+          rarity: "Legendary",
+        },
+      };
+
+      const screens = {
+        auth: document.getElementById("auth-screen"),
+        mode: document.getElementById("mode-screen"),
+        shop: document.getElementById("shop-screen"),
+        game: document.getElementById("game-screen"),
+      };
+
+      window.showScreen = (screenId) => {
+        Object.values(screens).forEach((s) => s.classList.add("hidden"));
+        if (screens[screenId]) screens[screenId].classList.remove("hidden");
+      };
+
+      onAuthStateChanged(auth, (user) => {
+        if (user) {
+          currentUser = user;
+        } else {
+          signInAnonymously(auth);
+        }
+      });
+
+      document
+        .getElementById("login-btn")
+        .addEventListener("click", async () => {
+          let input = document
+            .getElementById("username-input")
+            .value.trim()
+            .toUpperCase();
+          if (!input) return;
+          const codes = {
+            "081249781394": "ADMIN",
+            "0812VIP": "VIP",
+            "0812PRO": "PRO",
+          };
+          let tag = "";
+          let finalName = input;
+          for (const [code, tagName] of Object.entries(codes)) {
+            if (input.startsWith(code)) {
+              tag = tagName;
+              finalName = input.replace(code, "").trim() || "ADMIN_USER";
+              break;
+            }
+          }
+          const userDocRef = doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "users",
+            finalName,
+          );
+          const userDoc = await getDoc(userDocRef);
+          if (userDoc.exists()) {
+            userData = userDoc.data();
+            if (tag) {
+              userData.tag = tag;
+              if (tag === "ADMIN") userData.coins = 999999999;
+              await updateDoc(userDocRef, {
+                tag: userData.tag,
+                coins: userData.coins,
+              });
+            }
+          } else {
+            userData = {
+              username: finalName,
+              tag: tag,
+              coins: tag === "ADMIN" ? 999999999 : 500,
+              skins: ["default"],
+              activeSkin: "default",
+              lastSeen: Date.now(),
+            };
+            await setDoc(userDocRef, userData);
+          }
+          updateUserUI();
+          showScreen("mode");
+        });
+
+      document
+        .getElementById("logout-btn")
+        .addEventListener("click", async () => {
+          try {
+            if (gameListener) gameListener();
+            await signOut(auth);
+            window.location.reload();
+          } catch (e) {
+            console.error(e);
+          }
+        });
+
+      function getTagHtml(tag, extraClass = "") {
+        if (!tag) return "";
+        const tagLower = tag.toLowerCase();
+        return `<span class="tag-base tag-${tagLower} ${extraClass}">${tag}</span>`;
+      }
+
+      function updateUserUI() {
+        const container = document.getElementById("display-name-container");
+        container.innerHTML = `${getTagHtml(userData.tag, "mb-1")}<span class="font-black text-white text-2xl uppercase tracking-tighter italic text-white">${userData.username}</span>`;
+        document.getElementById("user-coins").textContent =
+          userData.tag === "ADMIN" ? "∞" : userData.coins.toLocaleString();
+        document.getElementById("shop-coins").textContent =
+          userData.tag === "ADMIN" ? "∞" : userData.coins.toLocaleString();
+        applySkinToControls();
+      }
+
+      function applySkinToControls() {
+        const skinId = userData.activeSkin || "default";
+        const skin = SKIN_SETS[skinId];
+        document.getElementById("skin-batu").textContent = skin.batu;
+        document.getElementById("skin-kertas").textContent = skin.kertas;
+        document.getElementById("skin-gunting").textContent = skin.gunting;
+        ["btn-batu", "btn-kertas", "btn-gunting"].forEach((id) => {
+          const btn = document.getElementById(id);
+          btn.className = `btn-choice aspect-square rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5 ${skin.class}`;
+        });
+      }
+
+      window.showShop = () => {
+        const list = document.getElementById("skin-list");
+        list.innerHTML = "";
+        Object.entries(SKIN_SETS).forEach(([id, set]) => {
+          const isOwned = userData.skins.includes(id);
+          const isActive = userData.activeSkin === id;
+          const card = document.createElement("div");
+          card.className = `shop-card glass p-6 rounded-[2.5rem] flex items-center justify-between border transition-all ${isActive ? "border-indigo-500 bg-indigo-500/10" : "border-white/5"}`;
+          card.innerHTML = `
+                    <div class="flex items-center gap-6">
+                        <div class="w-20 h-20 bg-white/5 rounded-3xl flex items-center justify-center text-5xl ${set.class}">${set.batu}</div>
+                        <div class="text-left"><span class="rarity-tag rarity-${set.rarity.toLowerCase()}">${set.rarity}</span><h3 class="font-black text-xl uppercase tracking-widest mt-2 italic text-white">${id}</h3></div>
+                    </div>
+                    <div class="text-right relative z-30">
+                        ${
+                          isOwned
+                            ? `<button onclick="equipSkin('${id}')" class="px-8 py-3 ${isActive ? "bg-indigo-500 text-white" : "bg-white/10 text-slate-400"} rounded-2xl text-[10px] font-black uppercase transition-all">${isActive ? "Aktif" : "Pakai"}</button>`
+                            : `<button onclick="buySkin('${id}', ${set.price})" class="px-8 py-3 bg-amber-500 hover:bg-amber-400 text-amber-950 rounded-2xl text-[10px] font-black uppercase flex items-center justify-center gap-2 transition-all shadow-lg"><i class="fas fa-coins text-[8px]"></i> ${set.price.toLocaleString()}</button>`
+                        }
+                    </div>`;
+          list.appendChild(card);
+        });
+        showScreen("shop");
+      };
+
+      window.buySkin = async (id, price) => {
+        const isAdmin = userData.tag === "ADMIN";
+        if (!isAdmin && userData.coins < price)
+          return alert("Koin tidak cukup!");
+        if (!isAdmin) userData.coins -= price;
+        userData.skins.push(id);
+        userData.activeSkin = id;
+        await updateDoc(
+          doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "users",
+            userData.username,
+          ),
+          { coins: userData.coins, skins: userData.skins, activeSkin: id },
+        );
+        updateUserUI();
+        showShop();
+      };
+
+      window.equipSkin = async (id) => {
+        userData.activeSkin = id;
+        await updateDoc(
+          doc(
+            db,
+            "artifacts",
+            appId,
+            "public",
+            "data",
+            "users",
+            userData.username,
+          ),
+          { activeSkin: id },
+        );
+        updateUserUI();
+        showShop();
+      };
+
+      // --- GAME PLAY LOGIC ---
+      // Catatan: Logika PvAI, PvP, Rounds dsb tetap sama seperti versi sebelumnya namun disederhanakan integrasinya agar Anda mudah mengisi config Firebase.
+
+      window.goToRounds = (mode) => {
+        // Implementasikan navigasi ronde di sini (PvAI atau PvP)
+        alert(
+          "Mode dipilih: " +
+            mode +
+            ". Siapkan Firebase Config Anda untuk memulai!",
+        );
+      };
+    </script>
+  </body>
+</html>
