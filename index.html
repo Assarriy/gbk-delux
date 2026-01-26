@@ -16,239 +16,290 @@
             --divine-color: #ffffff;
             --cyber-color: #39ff14;
             --primary-accent: #4f46e5;
-            --glass-bg: rgba(15, 23, 42, 0.7);
+            --glass-bg: rgba(15, 23, 42, 0.8);
             --glass-border: rgba(255, 255, 255, 0.1);
-            --bg-gradient: radial-gradient(circle at top left, #020617, #0f172a, #1e1b4b);
         }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
-            background: var(--bg-gradient);
+            background: radial-gradient(circle at top left, #020617, #0f172a, #1e1b4b);
             min-height: 100vh;
             color: white;
             overflow-x: hidden;
             transition: all 1s ease;
         }
 
-        /* --- LAYERING --- */
-        .theme-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: -1; overflow: hidden; }
+        /* --- VISUAL LAYERS --- */
+        #theme-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; overflow: hidden; }
         .cyber-grid { 
-            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background-image: linear-gradient(rgba(0, 242, 255, 0.05) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.05) 1px, transparent 1px);
-            background-size: 40px 40px; pointer-events: none; z-index: -1; 
+            display: none; position: fixed; bottom: 0; left: 0; width: 100%; height: 100%;
+            background-image: linear-gradient(rgba(0, 242, 255, 0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(0, 242, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px; pointer-events: none; z-index: 0; 
+            transform: perspective(300px) rotateX(60deg); transform-origin: center bottom;
+            mask-image: linear-gradient(to top, black, transparent);
+        }
+
+        /* --- ANIMATIONS --- */
+        @keyframes glitch { 0% { transform: translate(0); text-shadow: -3px 0 #ff00ff, 3px 0 #00ffff; } 20% { transform: translate(-3px, 1.5px); } 40% { transform: translate(2px, -1px); text-shadow: 3px 0 #ff00ff, -3px 0 #00ffff; } 100% { transform: translate(0); } }
+        @keyframes shake { 0%, 100% { transform: translate(0, 0); } 10%, 30%, 50%, 70%, 90% { transform: translate(-5px, 5px); } 20%, 40%, 60%, 80% { transform: translate(5px, -5px); } }
+        @keyframes emojiPop { 0% { transform: scale(0) translateY(0); opacity: 0; } 20% { transform: scale(1.6) translateY(-30px); opacity: 1; } 80% { transform: scale(1.6) translateY(-50px); opacity: 1; } 100% { transform: scale(0) translateY(-80px); opacity: 0; } }
+        @keyframes entry { from { opacity: 0; transform: translateY(40px) scale(0.9); filter: blur(10px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
+        @keyframes gold-shine { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+        @keyframes sparkle { 0%, 100% { opacity: 0; transform: scale(0); } 50% { opacity: 1; transform: scale(1.2); } }
+
+        .animate-entry { animation: entry 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .cyber-glitch { animation: glitch 4s infinite; }
+        .shake-screen { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+        .emoji-bubble { position: absolute; font-size: 3rem; pointer-events: none; z-index: 100; animation: emojiPop 2s forwards; filter: drop-shadow(0 0 15px rgba(0,0,0,0.5)); }
+
+        .glass {
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px);
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 40px 100px -20px rgba(0, 0, 0, 0.8);
+            transition: all 0.6s ease;
         }
 
         /* --- THEMES --- */
         body.theme-cyberpunk { --bg-gradient: linear-gradient(135deg, #050505, #120520, #051515); --primary-accent: #ff00ff; }
-        body.theme-cyberpunk .cyber-grid { display: block; animation: gridSlide 20s linear infinite; }
-        @keyframes gridSlide { from { background-position: 0 0; } to { background-position: 40px 40px; } }
+        body.theme-cyberpunk .cyber-grid { display: block; animation: gridMove 20s linear infinite; }
+        @keyframes gridMove { from { background-position: 0 0; } to { background-position: 0 100%; } }
         
         body.theme-sakura { --bg-gradient: radial-gradient(circle, #3d1425, #1a0a1a); --primary-accent: #f472b6; }
         body.theme-ocean { --bg-gradient: linear-gradient(180deg, #041d20, #000000); --primary-accent: #0ea5e9; }
         body.theme-magma { --bg-gradient: radial-gradient(circle, #300505, #000000); --primary-accent: #ef4444; }
 
-        /* --- UI ELEMENTS --- */
-        .glass {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+        /* --- LABELS --- */
+        .choice-label {
+            font-size: 0.85rem; font-weight: 900; text-transform: uppercase; letter-spacing: 0.15em;
+            margin-top: 15px; padding: 6px 18px; border-radius: 12px;
+            background: rgba(0,0,0,0.8); color: white; border: 1.5px solid rgba(255,255,255,0.1);
+            text-align: center;
         }
+        .divine-label-fix { background: #1e1b4b !important; color: #fbbf24 !important; border: 2px solid white !important; box-shadow: 0 0 20px #ffffff; }
+        .gold-label-fix { background: #000 !important; color: #ffd700 !important; border: 2px solid #ffd700 !important; box-shadow: 0 0 15px #ffd700; }
 
-        @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-view { animation: slideIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; }
+        .btn-choice { transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); position: relative; z-index: 10; }
+        .btn-choice:hover:not(:disabled) { transform: translateY(-10px) scale(1.05); filter: brightness(1.2); }
+        .choice-selected { background: var(--primary-accent) !important; border-color: white !important; box-shadow: 0 0 40px var(--primary-accent); transform: scale(1.1) rotate(4deg); }
 
-        .btn-choice {
-            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative; z-index: 10;
+        .achievement-badge { background: rgba(255,255,255,0.05); padding: 5px 12px; border-radius: 99px; font-size: 0.6rem; font-weight: 800; border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 5px; opacity: 0.3; transition: all 0.5s; }
+        .achievement-badge.unlocked { opacity: 1; background: var(--primary-accent); color: white; border-color: white; box-shadow: 0 0 15px var(--primary-accent); }
+
+        /* NOTIFICATION BOX */
+        #notify-box {
+            position: fixed; top: 30px; left: 50%; transform: translateX(-50%) translateY(-150px);
+            z-index: 1000; width: 90%; max-width: 350px; transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            pointer-events: none;
         }
-        .btn-choice:hover:not(:disabled) { transform: translateY(-8px) scale(1.05); filter: brightness(1.2); }
-        .choice-selected { background: var(--primary-accent) !important; border-color: white !important; box-shadow: 0 0 30px var(--primary-accent); transform: scale(1.1); }
+        #notify-box.show { transform: translateX(-50%) translateY(0); }
 
         /* --- SKIN EFFECTS --- */
         .effect-base { position: relative !important; overflow: hidden !important; }
-        .effect-neon { animation: neonFlicker 2s infinite; border: 2px solid var(--neon-color) !important; }
-        @keyframes neonFlicker { 0%, 100% { opacity: 1; box-shadow: 0 0 20px var(--neon-color); } 50% { opacity: 0.8; box-shadow: 0 0 10px var(--neon-color); } }
-        
-        .effect-galaxy { background: linear-gradient(45deg, #0f0c29, #302b63, #24243e) !important; border: 2px solid #a855f7 !important; box-shadow: 0 0 30px #a855f7; }
-        .effect-gold { background: linear-gradient(135deg, #ffd700, #b8860b) !important; border: 2px solid #fff !important; box-shadow: 0 0 30px #fbbf24; color: #000 !important; }
-        
-        .effect-divine {
-            background: linear-gradient(135deg, #ffffff, #e0e7ff) !important;
-            color: #1e1b4b !important; border: 3px solid #fff !important;
-            box-shadow: 0 0 40px #fff; animation: float 3s infinite ease-in-out;
-        }
-
-        .effect-cyber { background: #000 !important; border: 2px solid #39ff14 !important; box-shadow: 0 0 15px #39ff14; }
-
-        /* LABELS CONTRAST FIX */
-        .choice-label {
-            font-size: 0.75rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.1em;
-            margin-top: 10px; padding: 4px 12px; border-radius: 8px;
-            background: rgba(0,0,0,0.8); color: white;
-        }
-        .divine-label-fix { background: #4338ca !important; color: #fff !important; border: 1px solid white; }
-        .gold-label-fix { background: #000 !important; color: #ffd700 !important; border: 1px solid #ffd700; }
+        .effect-gold { background: linear-gradient(-45deg, #ffd700, #fff7a1, #b8860b, #ffd700) !important; background-size: 300% 300% !important; animation: gold-shine 4s ease infinite !important; border: 3px solid #ffffff !important; box-shadow: 0 0 50px #fbbf24; }
+        .effect-gold::before { content: "✦"; position: absolute; top: 10%; left: 10%; color: #fff; animation: sparkle 2s infinite; font-size: 1.2rem; }
+        .effect-divine { background: linear-gradient(135deg, #ffffff, #fffbeb, #e0e7ff) !important; color: #1e1b4b !important; border: 3px solid #fff !important; box-shadow: 0 0 80px #fff, inset 0 0 20px #fff; animation: float 4s infinite ease-in-out; }
 
         /* PARTICLES */
         .particle { position: absolute; pointer-events: none; z-index: 2; }
         .sakura-petal { background: #f472b6; border-radius: 100% 0 100% 0; animation: fall linear infinite; }
         .ocean-bubble { background: rgba(255,255,255,0.2); border-radius: 50%; animation: rise linear infinite; }
         .magma-ember { background: #ef4444; border-radius: 2px; box-shadow: 0 0 10px #ef4444; animation: rise linear infinite; }
-
         @keyframes fall { from { transform: translateY(-5vh) rotate(0deg); } to { transform: translateY(105vh) rotate(360deg); } }
         @keyframes rise { from { transform: translateY(105vh); opacity: 1; } to { transform: translateY(-5vh); opacity: 0; } }
+
+        .leaderboard-row { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: rgba(255,255,255,0.04); border-radius: 16px; margin-bottom: 8px; border: 1px solid rgba(255,255,255,0.05); }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: var(--primary-accent); border-radius: 10px; }
     </style>
 </head>
 <body class="flex items-center justify-center p-4">
+    <!-- Notification UI -->
+    <div id="notify-box" class="glass p-5 rounded-3xl border-2 border-indigo-500/50 flex items-center gap-4 text-white shadow-3xl">
+        <div class="w-12 h-12 bg-indigo-500 rounded-2xl flex items-center justify-center text-xl shadow-lg"><i class="fas fa-bell"></i></div>
+        <p id="notify-msg" class="font-bold text-sm leading-tight"></p>
+    </div>
+
     <div id="theme-overlay" class="theme-overlay"></div>
     <div class="cyber-grid"></div>
 
     <div id="app" class="w-full max-w-md relative z-10">
         <!-- Auth Screen -->
-        <div id="auth-screen" class="glass p-8 rounded-[3rem] text-center animate-view">
-            <div class="mb-8">
-                <div class="w-24 h-24 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl rotate-12 transition-transform hover:rotate-0">
+        <div id="auth-screen" class="glass p-10 rounded-[4rem] text-center animate-entry">
+            <div class="mb-10 text-center">
+                <div class="w-28 h-28 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 shadow-2xl rotate-12 transition-transform hover:rotate-0">
                     <i class="fas fa-hand-fist text-5xl text-white"></i>
                 </div>
-                <h1 class="text-5xl font-black tracking-tighter mb-2 italic">GBK <span class="text-indigo-400">DELUXE</span></h1>
-                <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.3em]">Multiplayer Arena</p>
+                <h1 class="text-5xl font-black tracking-tighter mb-2 italic cyber-glitch">GBK <span class="text-indigo-400">DELUXE</span></h1>
+                <p class="text-slate-400 text-xs font-bold uppercase tracking-[0.4em]">Elite Multiplayer Universe</p>
             </div>
-            <div class="space-y-5">
-                <div class="text-left">
-                    <label class="text-[10px] uppercase font-black text-indigo-400 mb-2 block ml-2">Username</label>
-                    <input type="text" id="username-input" placeholder="NAMA..." class="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 focus:border-indigo-500 focus:outline-none text-center text-lg font-bold uppercase text-white">
-                </div>
-                <button id="login-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-5 rounded-2xl shadow-xl active:scale-95 transition-all uppercase tracking-widest">MASUK</button>
-            </div>
-        </div>
-
-        <!-- Main Menu -->
-        <div id="mode-screen" class="hidden glass p-8 rounded-[3rem] text-center animate-view">
-            <div class="flex justify-between items-center mb-8">
-                <div id="display-name-container" class="flex flex-col items-start gap-1"></div>
-                <div class="bg-black/30 px-4 py-2 rounded-xl border border-white/10 flex items-center gap-2">
-                    <i class="fas fa-coins text-amber-400"></i>
-                    <span id="user-coins" class="font-black text-xl text-white">0</span>
-                </div>
-            </div>
-            <div class="grid gap-4">
-                <button onclick="goToRounds('pvai')" class="glass p-5 rounded-2xl flex items-center gap-5 text-left border-white/5 hover:border-indigo-500/50 transition-all group">
-                    <div class="w-14 h-14 bg-indigo-500 rounded-xl flex items-center justify-center text-3xl shadow-lg text-white"><i class="fas fa-robot"></i></div>
-                    <div><h3 class="font-bold text-lg">Latihan Bot</h3><p class="text-[10px] text-slate-400 uppercase font-bold">Kumpulkan Koin</p></div>
-                </button>
-                <button onclick="goToRounds('pvp')" class="glass p-5 rounded-2xl flex items-center gap-5 text-left border-white/5 hover:border-indigo-500/50 transition-all group">
-                    <div class="w-14 h-14 bg-purple-600 rounded-xl flex items-center justify-center text-3xl shadow-lg text-white"><i class="fas fa-globe"></i></div>
-                    <div><h3 class="font-bold text-lg">Duel Online</h3><p class="text-[10px] text-slate-400 uppercase font-bold">Multiplayer</p></div>
-                </button>
-                <button onclick="showShop()" class="glass p-5 rounded-2xl flex items-center gap-5 text-left border-white/5 hover:border-indigo-500/50 transition-all group">
-                    <div class="w-14 h-14 bg-amber-500 rounded-xl flex items-center justify-center text-3xl shadow-lg text-white"><i class="fas fa-crown"></i></div>
-                    <div><h3 class="font-bold text-lg">Butik</h3><p class="text-[10px] text-slate-400 uppercase font-bold">Skin & Tema</p></div>
-                </button>
-                <button id="logout-btn" class="mt-4 text-slate-500 text-xs font-bold uppercase tracking-widest">LOGOUT</button>
-            </div>
-        </div>
-
-        <!-- Arena -->
-        <div id="game-screen" class="hidden w-full animate-view">
-            <div class="glass p-5 rounded-[3rem] space-y-8 relative overflow-hidden">
-                <!-- Score Header -->
-                <div class="flex justify-between items-center bg-black/20 p-4 rounded-2xl border border-white/5">
-                    <div class="text-center flex-1"><div id="p1-name-wrapper" class="text-xs font-bold mb-1"></div><div id="p1-score" class="text-4xl font-black text-indigo-400">0</div></div>
-                    <div class="px-2 text-center">
-                        <div id="current-bet-display" class="hidden text-[9px] text-amber-400 font-bold uppercase mb-1">Bet: 0</div>
-                        <div class="bg-indigo-600 px-3 py-1 rounded-full text-[9px] font-black text-white" id="current-round-display">1 / 3</div>
-                    </div>
-                    <div class="text-center flex-1"><div id="p2-name-wrapper" class="text-xs font-bold mb-1"></div><div id="p2-score" class="text-4xl font-black text-purple-400">0</div></div>
-                </div>
-
-                <!-- Battle Area -->
-                <div class="flex justify-center items-center gap-4 py-2">
-                    <div class="flex flex-col items-center flex-1">
-                        <div id="p1-display" class="w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center text-6xl border border-white/10 transition-all effect-base"><i class="fas fa-question text-white/5"></i></div>
-                        <div id="p1-choice-label" class="choice-label"></div>
-                    </div>
-                    <div class="text-xl font-black opacity-20 italic">VS</div>
-                    <div class="flex flex-col items-center flex-1">
-                        <div id="p2-display" class="w-24 h-24 bg-white/5 rounded-3xl flex items-center justify-center text-6xl border border-white/10 transition-all effect-base"><i class="fas fa-question text-white/5"></i></div>
-                        <div id="p2-choice-label" class="choice-label"></div>
-                    </div>
-                </div>
-
-                <div id="game-message" class="text-center min-h-[60px] flex flex-col items-center justify-center font-black italic text-sm">
-                    <p class="text-slate-500 uppercase tracking-widest">Menunggu Serangan...</p>
-                </div>
-
-                <!-- Controls -->
-                <div id="game-controls" class="grid grid-cols-3 gap-4 p-2 bg-black/10 rounded-[2rem]">
-                    <button id="btn-batu" onclick="makeChoice('batu')" class="btn-choice aspect-square rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5">
-                        <span id="skin-batu" class="text-4xl mb-1"></span><span class="text-[8px] font-bold uppercase opacity-50">Batu</span>
-                    </button>
-                    <button id="btn-kertas" onclick="makeChoice('kertas')" class="btn-choice aspect-square rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5">
-                        <span id="skin-kertas" class="text-4xl mb-1"></span><span class="text-[8px] font-bold uppercase opacity-50">Kertas</span>
-                    </button>
-                    <button id="btn-gunting" onclick="makeChoice('gunting')" class="btn-choice aspect-square rounded-2xl flex flex-col items-center justify-center border border-white/5 bg-white/5">
-                        <span id="skin-gunting" class="text-4xl mb-1"></span><span class="text-[8px] font-bold uppercase opacity-50">Gunting</span>
-                    </button>
-                </div>
-
-                <div id="game-actions" class="hidden space-y-3">
-                    <button id="next-round-btn" class="w-full bg-indigo-600 py-5 rounded-2xl font-black uppercase text-white shadow-lg">Lanjut Babak</button>
-                    <button id="final-rematch-btn" class="hidden w-full bg-indigo-600 py-5 rounded-2xl font-black uppercase text-white">Main Lagi</button>
-                    <button id="quit-btn" class="w-full text-slate-500 text-[10px] font-bold uppercase">Lobby</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Shop Screen -->
-        <div id="shop-screen" class="hidden glass p-8 rounded-[3rem] animate-view">
-            <div class="flex justify-between items-center mb-6">
-                <h2 class="text-3xl font-black italic uppercase">Butik</h2>
-                <div class="bg-black/30 px-3 py-1 rounded-xl flex items-center gap-2">
-                    <i class="fas fa-coins text-amber-400"></i><span id="shop-coins" class="font-black">0</span>
-                </div>
-            </div>
-            <div class="flex gap-2 mb-6">
-                <button id="tab-icons" onclick="renderShop('icons')" class="flex-1 py-3 rounded-xl bg-indigo-600 font-bold text-[10px] uppercase text-white">Skin Ikon</button>
-                <button id="tab-themes" onclick="renderShop('themes')" class="flex-1 py-3 rounded-xl bg-white/5 font-bold text-[10px] uppercase">Tema UI</button>
-            </div>
-            <div id="skin-list" class="grid gap-3 max-h-[350px] overflow-y-auto pr-2 custom-scrollbar"></div>
-            <button onclick="showScreen('mode')" class="w-full mt-6 bg-indigo-600 py-4 rounded-2xl font-black uppercase text-sm">Kembali</button>
-        </div>
-
-        <!-- Helper Screens -->
-        <div id="round-screen" class="hidden glass p-8 rounded-[3rem] text-center">
-            <h2 class="text-2xl font-black mb-8 uppercase">Jumlah Babak</h2>
-            <div class="grid gap-4">
-                <button onclick="selectRounds(3)" class="glass p-5 rounded-xl font-black text-xl hover:border-indigo-500">3 Babak</button>
-                <button onclick="selectRounds(5)" class="glass p-5 rounded-xl font-black text-xl hover:border-indigo-500">5 Babak</button>
-                <button onclick="selectRounds(10)" class="glass p-5 rounded-xl font-black text-xl hover:border-indigo-500">10 Babak</button>
-            </div>
-            <button onclick="showScreen('mode')" class="mt-6 text-slate-500 text-xs">BATAL</button>
-        </div>
-
-        <div id="pvp-menu-screen" class="hidden glass p-8 rounded-[3rem] text-center">
-            <h2 class="text-3xl font-black mb-8 uppercase">Arena PvP</h2>
             <div class="space-y-6">
-                <div class="bg-indigo-900/20 p-6 rounded-2xl">
-                    <label class="text-[10px] font-black text-indigo-400 block mb-2 uppercase">Taruhan</label>
-                    <input type="number" id="bet-input" value="0" min="0" step="50" class="bg-transparent border-none text-center text-4xl font-black text-white focus:outline-none w-full">
+                <div class="text-left px-2">
+                    <label class="text-[10px] font-black text-indigo-400 mb-2 block tracking-widest ml-2 uppercase">Hero Identity</label>
+                    <input type="text" id="username-input" placeholder="NAMA ANDA..." class="w-full px-8 py-6 rounded-[2rem] bg-white/5 border border-white/10 focus:border-indigo-500 focus:outline-none text-center text-xl font-black uppercase text-white shadow-inner">
                 </div>
-                <button onclick="createRoom()" class="w-full bg-indigo-600 py-5 rounded-2xl font-black uppercase">Buat Room</button>
-                <input type="text" id="join-id-input" placeholder="KODE ROOM" class="w-full px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-center text-xl font-mono font-black uppercase focus:border-indigo-500 text-white">
-                <button onclick="joinRoom()" class="w-full bg-purple-600 py-5 rounded-2xl font-black uppercase">Gabung</button>
-                <button onclick="showScreen('round')" class="text-slate-500 text-xs">Kembali</button>
+                <button id="login-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-black py-6 rounded-[2.5rem] shadow-2xl active:scale-95 transition-all uppercase tracking-widest text-lg border-b-4 border-indigo-800">MASUK ARENA</button>
             </div>
         </div>
 
-        <div id="waiting-screen" class="hidden glass p-8 rounded-[3rem] text-center">
-            <h3 class="text-indigo-400 text-[10px] font-black uppercase mb-4">Membagikan Kode</h3>
-            <div class="text-6xl font-black tracking-widest mb-10 bg-black/20 py-8 rounded-3xl border border-white/10" id="lobby-id-display">00000</div>
-            <div class="flex justify-center gap-3 mb-10">
-                <div class="bg-indigo-500/20 px-4 py-2 rounded-full text-[10px] font-black uppercase" id="lobby-round-info"></div>
-                <div class="bg-amber-400/20 px-4 py-2 rounded-full text-[10px] font-black uppercase text-amber-400" id="lobby-bet-info"></div>
+        <!-- Menu Utama -->
+        <div id="mode-screen" class="hidden glass p-8 rounded-[4rem] text-center animate-entry">
+            <div class="flex justify-between items-center mb-8 text-left">
+                <div id="display-name-container" class="flex flex-col items-start gap-1"></div>
+                <div class="bg-black/40 px-5 py-3 rounded-2xl border border-white/10 flex items-center gap-3 shadow-xl">
+                    <i class="fas fa-coins text-amber-400 text-xl animate-pulse"></i>
+                    <span id="user-coins" class="font-black text-3xl text-white">0</span>
+                </div>
             </div>
-            <button id="cancel-room-btn" class="text-red-500 text-xs font-black">BATALKAN</button>
+
+            <!-- Stats -->
+            <div class="flex flex-wrap gap-2 mb-6 justify-center">
+                <div class="bg-black/40 px-4 py-2 rounded-xl text-[10px] font-bold border border-white/5">
+                    <span class="text-emerald-400">W: <span id="stat-wins">0</span></span> | 
+                    <span class="text-rose-400">L: <span id="stat-losses">0</span></span> | 
+                    <span class="text-indigo-400">D: <span id="stat-draws">0</span></span>
+                </div>
+                <div id="badge-rich" class="achievement-badge"><i class="fas fa-gem"></i> Rich</div>
+                <div id="badge-elite" class="achievement-badge"><i class="fas fa-crown"></i> Elite</div>
+            </div>
+            
+            <div class="grid gap-4 mb-8">
+                <button id="claim-daily-btn" class="bg-amber-500 hover:bg-amber-400 text-black py-4 rounded-3xl font-black uppercase text-xs tracking-widest shadow-xl flex items-center justify-center gap-3 transition-all border-b-4 border-amber-700">
+                    <i class="fas fa-gift text-lg"></i> Bonus Koin Harian
+                </button>
+
+                <button onclick="showScreen('round', 'pvai')" class="glass p-5 rounded-[2.5rem] flex items-center gap-6 text-left border-white/5 hover:border-indigo-500/50 transition-all group">
+                    <div class="w-16 h-16 bg-indigo-500 rounded-2xl flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform text-white"><i class="fas fa-robot"></i></div>
+                    <div><h3 class="font-black text-xl text-white">Latihan Bot</h3><p class="text-[10px] text-slate-400 uppercase font-bold">Kumpulkan Koin</p></div>
+                </button>
+                <button onclick="showScreen('round', 'pvp')" class="glass p-5 rounded-[2.5rem] flex items-center gap-6 text-left border-white/5 hover:border-indigo-500/50 transition-all group">
+                    <div class="w-16 h-16 bg-purple-600 rounded-2xl flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform text-white"><i class="fas fa-globe"></i></div>
+                    <div><h3 class="font-black text-xl text-white text-white">Duel Online</h3><p class="text-[10px] text-slate-400 uppercase font-bold text-white text-white">Multiplayer Bet</p></div>
+                </button>
+                <button onclick="openShop()" class="glass p-5 rounded-[2.5rem] flex items-center gap-6 text-left border-white/5 hover:border-indigo-500/50 transition-all group">
+                    <div class="w-16 h-16 bg-amber-500 rounded-2xl flex items-center justify-center text-4xl shadow-lg group-hover:scale-110 transition-transform text-white"><i class="fas fa-crown"></i></div>
+                    <div><h3 class="font-black text-xl text-white text-white">Butik Eksklusif</h3><p class="text-[10px] text-slate-400 uppercase font-bold text-white text-white">Skin & Tema UI</p></div>
+                </button>
+            </div>
+
+            <div class="bg-black/20 p-6 rounded-[2.5rem] border border-white/5">
+                <h4 class="text-[10px] font-black uppercase tracking-[0.3em] text-indigo-400 mb-5 flex items-center justify-center gap-2">
+                    <i class="fas fa-trophy text-amber-500"></i> Global Leaderboard
+                </h4>
+                <div id="leaderboard-list" class="text-left text-xs"></div>
+            </div>
+
+            <button onclick="window.location.reload()" class="mt-8 text-slate-500 text-[10px] font-black uppercase tracking-[0.5em] transition-colors text-center text-white">LOGOUT SYSTEM</button>
+        </div>
+
+        <!-- Game Arena -->
+        <div id="game-screen" class="hidden w-full animate-entry">
+            <div id="arena-box" class="glass p-6 rounded-[4rem] space-y-8 relative overflow-hidden text-white">
+                <!-- Emoji Bar -->
+                <div class="flex justify-center gap-4 py-2 border-b border-white/5">
+                    <button onclick="sendEmoji('😂')" class="text-2xl hover:scale-150 transition-transform">😂</button>
+                    <button onclick="sendEmoji('🔥')" class="text-2xl hover:scale-150 transition-transform">🔥</button>
+                    <button onclick="sendEmoji('💀')" class="text-2xl hover:scale-150 transition-transform">💀</button>
+                    <button onclick="sendEmoji('👍')" class="text-2xl hover:scale-150 transition-transform">👍</button>
+                    <button onclick="sendEmoji('😡')" class="text-2xl hover:scale-150 transition-transform">😡</button>
+                </div>
+
+                <div class="flex justify-between items-center bg-black/20 p-6 rounded-[2.5rem] border border-white/5 shadow-2xl">
+                    <div class="text-center flex-1 text-white"><div id="p1-name-wrapper" class="text-xs font-bold mb-2 uppercase"></div><div id="p1-score" class="text-5xl font-black text-indigo-400 text-center">0</div></div>
+                    <div class="px-4 text-center">
+                        <div id="current-bet-display" class="hidden text-[10px] text-amber-400 font-black uppercase mb-2 animate-bounce">Bet: 0</div>
+                        <div class="bg-indigo-600 px-5 py-1.5 rounded-full text-[10px] font-black text-white text-center shadow-lg shadow-indigo-500/30" id="current-round-display">1 / 3</div>
+                    </div>
+                    <div class="text-center flex-1 text-white"><div id="p2-name-wrapper" class="h-14 flex flex-col items-center justify-center font-bold"></div><div id="p2-score" class="text-5xl font-black text-purple-400 text-center text-white">0</div></div>
+                </div>
+
+                <div class="flex justify-center items-center gap-6 py-4 relative">
+                    <div id="p1-area" class="flex flex-col items-center flex-1 relative">
+                        <div id="p1-display" class="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center text-6xl border border-white/10 transition-all duration-700 effect-base shadow-inner text-white"><i class="fas fa-question text-white/5"></i></div>
+                        <div id="p1-choice-label" class="choice-label text-center"></div>
+                        <div id="p1-emoji-anchor" class="absolute -top-12"></div>
+                    </div>
+                    <div class="text-3xl font-black opacity-10 italic transform -rotate-12">VS</div>
+                    <div id="p2-area" class="flex flex-col items-center flex-1 relative">
+                        <div id="p2-display" class="w-24 h-24 bg-white/5 rounded-[2.5rem] flex items-center justify-center text-6xl border border-white/10 transition-all duration-700 effect-base shadow-inner text-white"><i class="fas fa-question text-white/5"></i></div>
+                        <div id="p2-choice-label" class="choice-label text-center"></div>
+                        <div id="p2-emoji-anchor" class="absolute -top-12"></div>
+                    </div>
+                </div>
+
+                <div id="game-message" class="text-center min-h-[90px] flex flex-col items-center justify-center font-black italic tracking-tight text-white drop-shadow-xl text-center">
+                    <p class="text-slate-500 uppercase text-xs tracking-widest text-center">Tentukan Serangan!</p>
+                </div>
+
+                <div id="game-controls" class="grid grid-cols-3 gap-5 p-4 bg-black/10 rounded-[3rem] shadow-inner text-white">
+                    <button onclick="makeChoice('batu')" class="btn-game-choice btn-choice aspect-square rounded-[2rem] flex flex-col items-center justify-center border border-white/5 bg-white/5">
+                        <span id="skin-batu" class="text-4xl mb-1 text-white"></span><span class="text-[9px] font-black uppercase opacity-50 text-white">Batu</span>
+                    </button>
+                    <button onclick="makeChoice('kertas')" class="btn-game-choice btn-choice aspect-square rounded-[2rem] flex flex-col items-center justify-center border border-white/5 bg-white/5">
+                        <span id="skin-kertas" class="text-4xl mb-1 text-white text-white"></span><span class="text-[9px] font-black uppercase opacity-50 text-white text-white">Kertas</span>
+                    </button>
+                    <button onclick="makeChoice('gunting')" class="btn-game-choice btn-choice aspect-square rounded-[2rem] flex flex-col items-center justify-center border border-white/5 bg-white/5">
+                        <span id="skin-gunting" class="text-4xl mb-1 text-white text-white text-white"></span><span class="text-[9px] font-black uppercase opacity-50 text-white text-white text-white text-white">Gunting</span>
+                    </button>
+                </div>
+
+                <div id="game-actions" class="hidden space-y-4">
+                    <button id="next-round-btn-action" class="w-full bg-indigo-600 hover:bg-indigo-500 py-6 rounded-[2.5rem] font-black uppercase text-xl shadow-2xl active:scale-95 transition-all text-white border-b-4 border-indigo-900">LANJUT RONDE</button>
+                    <button id="final-rematch-btn-action" class="hidden w-full bg-emerald-600 py-6 rounded-[2.5rem] font-black uppercase text-xl shadow-2xl active:scale-95 transition-all text-white">MAIN LAGI</button>
+                    <button onclick="showScreen('mode')" class="w-full text-slate-500 text-[10px] font-black uppercase tracking-[0.4em] py-4 text-center">LOBBY</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Butik Screen -->
+        <div id="shop-screen" class="hidden glass p-10 rounded-[4rem] text-white animate-entry">
+            <div class="flex justify-between items-center mb-10 text-white">
+                <div><h2 class="text-4xl font-black uppercase italic text-white">BUTIK</h2><p class="text-[10px] font-bold text-indigo-400 uppercase tracking-widest text-white">Elite Collection</p></div>
+                <div class="bg-black/30 px-5 py-2 rounded-2xl flex items-center gap-2 border border-white/10 text-white text-white text-white text-white text-white text-white"><i class="fas fa-coins text-amber-400 text-xl text-white text-white text-white"></i><span id="shop-coins" class="font-black text-3xl text-white text-white text-white text-white text-white text-white text-white text-white">0</span></div>
+            </div>
+            <div class="flex gap-4 mb-8">
+                <button id="tab-icons" onclick="renderShop('icons')" class="flex-1 py-4 rounded-[2rem] bg-indigo-600 font-black text-xs uppercase tracking-widest text-white shadow-xl">Skin Ikon</button>
+                <button id="tab-themes" onclick="renderShop('themes')" class="flex-1 py-4 rounded-[2rem] bg-white/5 hover:bg-white/10 font-black text-xs uppercase tracking-widest">Tema UI</button>
+            </div>
+            <div id="skin-list" class="grid gap-5 max-h-[380px] overflow-y-auto pr-2 custom-scrollbar"></div>
+            <button onclick="showScreen('mode')" class="w-full mt-10 bg-indigo-600 hover:bg-indigo-700 py-6 rounded-[2.5rem] font-black uppercase text-md transition-all shadow-2xl text-white text-white">KEMBALI</button>
+        </div>
+        
+        <!-- Helper Screens -->
+        <div id="round-screen" class="hidden glass p-10 rounded-[3.5rem] text-center text-white animate-entry">
+            <h2 class="text-3xl font-black mb-10 italic uppercase text-white text-center">Pilih Ronde</h2>
+            <div class="grid gap-5">
+                <button onclick="selectRounds(3)" class="glass p-6 rounded-[2rem] border-2 border-white/5 hover:border-indigo-500 font-black text-2xl transition-all text-white text-white text-white text-white">3 Babak</button>
+                <button onclick="selectRounds(5)" class="glass p-6 rounded-[2rem] border-2 border-white/5 hover:border-indigo-500 font-black text-2xl transition-all text-white text-white text-white text-white text-white">5 Babak</button>
+                <button onclick="selectRounds(10)" class="glass p-6 rounded-[2rem] border-2 border-white/5 hover:border-indigo-500 font-black text-2xl transition-all text-white text-white text-white text-white text-white text-white">10 Babak</button>
+            </div>
+            <button onclick="showScreen('mode')" class="mt-10 text-slate-500 font-black uppercase text-xs tracking-widest">BATAL</button>
+        </div>
+
+        <div id="pvp-menu-screen" class="hidden glass p-10 rounded-[3.5rem] text-center animate-entry">
+            <h2 class="text-4xl font-black mb-10 italic uppercase">Arena PvP</h2>
+            <div class="space-y-8">
+                <div class="bg-black/30 p-10 rounded-[3.5rem] border border-white/10 shadow-inner">
+                    <label class="text-[10px] font-black text-indigo-400 block mb-3 uppercase tracking-widest">Taruhan Koin</label>
+                    <div class="flex items-center gap-4 justify-center text-white"><i class="fas fa-coins text-amber-400 text-4xl animate-pulse"></i><input type="number" id="bet-input" value="0" min="0" step="50" class="bg-transparent border-none text-center text-6xl font-black text-white focus:outline-none w-40 text-white"></div>
+                </div>
+                <button id="create-room-btn" class="w-full bg-indigo-600 hover:bg-indigo-500 py-7 rounded-[3rem] font-black uppercase shadow-2xl text-white text-xl">BUAT ROOM</button>
+                <input type="text" id="join-id-input" placeholder="KODE" class="w-full px-8 py-7 rounded-[2.5rem] bg-white/5 border border-white/10 text-center text-2xl font-mono font-black tracking-widest uppercase focus:outline-none focus:border-indigo-500 text-white">
+                <button id="join-room-btn" class="w-full bg-purple-600 py-7 rounded-[3rem] font-black uppercase shadow-2xl text-white text-xl">GABUNG</button>
+                <button onclick="showScreen('round')" class="mt-8 text-slate-500 text-xs font-black uppercase tracking-[0.4em]">KEMBALI</button>
+            </div>
+        </div>
+
+        <div id="waiting-screen" class="hidden glass p-12 rounded-[4.5rem] text-center animate-pop">
+            <h3 class="text-indigo-400 text-[10px] font-black uppercase tracking-[0.5em] mb-6 opacity-80">Room Code</h3>
+            <div class="text-8xl font-black tracking-widest mb-12 bg-black/40 py-12 rounded-[3.5rem] border border-white/10 shadow-2xl text-center text-white" id="lobby-id-display">00000</div>
+            <div class="flex justify-center gap-6 mb-12 text-center text-white">
+                <div class="bg-indigo-500/20 px-8 py-3 rounded-full text-sm font-black uppercase text-white text-white" id="lobby-round-info"></div>
+                <div class="bg-amber-400/20 px-8 py-3 rounded-full text-sm font-black uppercase text-amber-400 shadow-lg text-center" id="lobby-bet-info"></div>
+            </div>
+            <p class="text-slate-500 italic animate-pulse text-lg text-center">Menunggu lawan bergabung...</p>
+            <button id="cancel-room-btn-action" class="mt-14 text-red-500 font-black text-xs uppercase tracking-[0.4em] border border-red-500/20 px-6 py-3 rounded-full text-white">BATALKAN</button>
         </div>
     </div>
 
@@ -256,8 +307,11 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, updateDoc, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc, getDocs, updateDoc, onSnapshot, deleteDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // ==========================================
+        // KONFIGURASI FIREBASE
+        // ==========================================
         const firebaseConfig = {
             apiKey: "AIzaSyDqC9Ok6wZTaERThiES3dGkRdFSlW04mEo",
             authDomain: "gbk-delux.firebaseapp.com",
@@ -267,25 +321,17 @@
             appId: "1:344892094742:web:c7a39bc3376dbb4de53837",
             measurementId: "G-1961BQK0P4"
         };
-
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const appId = 'gbk-deluxe-v3-stable';
+        const appId = 'gbk-deluxe-v6-pro-prod-stable';
 
-        let currentUser = null;
-        let userData = { username: "", tag: "", coins: 0, skins: ["default"], themes: ["default"], activeSkin: "default", activeTheme: "default" };
-        let currentGameId = null;
-        let isPlayer1 = true;
-        let gameMode = 'pvp'; 
-        let selectedMaxRounds = 3;
-        let gameListener = null;
-
+        // --- GLOBAL CONSTANTS ---
         const SKIN_SETS = {
             'default': { batu: '✊', kertas: '✋', gunting: '✌️', price: 0, class: 'effect-base', rarity: 'Common' },
             'fruit': { batu: '🍎', kertas: '🍌', gunting: '🍇', price: 150, class: 'effect-fruit effect-base', rarity: 'Common' },
             'neon': { batu: '🔥', kertas: '❄️', gunting: '⚡', price: 400, class: 'effect-neon effect-base', rarity: 'Rare' },
-            'animal': { batu: '🦁', kertas: '🐢', gunting: '🦅', price: 600, class: 'effect-animal effect-base', rarity: 'Rare' },
+            'animal': { batu: '🦁', kertas: '🐢', gunting: '🦅', price: 600, class: 'effect-base', rarity: 'Rare' },
             'cyber': { batu: '👾', kertas: '📡', gunting: '⚔️', price: 800, class: 'effect-cyber effect-base', rarity: 'Rare' },
             'galaxy': { batu: '🌑', kertas: '🪐', gunting: '⭐', price: 1500, class: 'effect-galaxy effect-base', rarity: 'Epic' },
             'divine': { batu: '🔱', kertas: '🕊️', gunting: '⚡', price: 3000, class: 'effect-divine effect-base', rarity: 'Epic' },
@@ -300,17 +346,79 @@
             'magma': { name: 'Hell Magma', price: 2000, class: 'theme-magma', rarity: 'Epic' }
         };
 
-        const screens = { auth: document.getElementById('auth-screen'), mode: document.getElementById('mode-screen'), shop: document.getElementById('shop-screen'), round: document.getElementById('round-screen'), pvpMenu: document.getElementById('pvp-menu-screen'), waiting: document.getElementById('waiting-screen'), game: document.getElementById('game-screen') };
+        const screens = { 
+            auth: document.getElementById('auth-screen'), 
+            mode: document.getElementById('mode-screen'), 
+            shop: document.getElementById('shop-screen'), 
+            round: document.getElementById('round-screen'), 
+            pvpMenu: document.getElementById('pvp-menu-screen'), 
+            waiting: document.getElementById('waiting-screen'), 
+            game: document.getElementById('game-screen') 
+        };
 
-        window.showScreen = (screenId) => { Object.values(screens).forEach(s => s.classList.add('hidden')); if(screens[screenId]) screens[screenId].classList.remove('hidden'); };
+        // --- GLOBAL VARIABLES ---
+        let currentUser = null;
+        let userData = { username: "", tag: "", coins: 0, skins: ["default"], themes: ["default"], activeSkin: "default", activeTheme: "default", lastDailyClaim: 0, stats: { wins: 0, losses: 0, draws: 0 } };
+        let currentGameId = null;
+        let isPlayer1 = true;
+        let gameMode = 'pvp'; 
+        let selectedMaxRounds = 3;
+        let gameListener = null;
+        let aiState = { p1Score: 0, p2Score: 0, currentRound: 1, maxRounds: 3, p1Skin: "default", p2Skin: "galaxy" };
 
-        onAuthStateChanged(auth, async (user) => { 
-            if (user) { 
-                currentUser = user; 
-            } else { 
-                signInAnonymously(auth); 
-            } 
-        });
+        // --- EXPOSE TO WINDOW ---
+        window.showScreen = (screenId, mode = null) => { 
+            if (mode) gameMode = mode;
+            Object.values(screens).forEach(s => s.classList.add('hidden')); 
+            if(screens[screenId]) screens[screenId].classList.remove('hidden'); 
+        };
+
+        window.notify = (text) => {
+            const box = document.getElementById('notify-box');
+            document.getElementById('notify-msg').textContent = text;
+            box.classList.add('show');
+            setTimeout(() => box.classList.remove('show'), 3000);
+        };
+
+        window.openShop = () => { window.renderShop('icons'); window.showScreen('shop'); };
+
+        window.selectRounds = (num) => {
+            selectedMaxRounds = num;
+            if (gameMode === 'pvai') startPvAI(); else window.showScreen('pvpMenu');
+        };
+
+        window.sendEmoji = async (emoji) => {
+            if (gameMode === 'pvp' && currentGameId) {
+                await updateDoc(doc(db, 'rooms', currentGameId), { emoji: { icon: emoji, sender: isPlayer1 ? 'p1' : 'p2', time: Date.now() } });
+            } else { spawnEmoji('p1', emoji); }
+        };
+
+        window.makeChoice = async (choice) => {
+            if (gameMode === 'pvp') { await updateDoc(doc(db, 'rooms', currentGameId), { [isPlayer1 ? 'p1Choice' : 'p2Choice']: choice }); } 
+            else handlePvAIChoice(choice);
+            document.querySelectorAll('.btn-game-choice').forEach(b => {
+                const labelText = b.querySelector('span').nextElementSibling.textContent.toLowerCase();
+                b.classList.toggle('choice-selected', labelText === choice);
+            });
+        };
+
+        window.equipItem = async (type, id) => {
+            if (type === 'icons') userData.activeSkin = id; else { userData.activeTheme = id; applyTheme(id); }
+            await updateDoc(doc(db, 'users', userData.username), { activeSkin: userData.activeSkin || "default", activeTheme: userData.activeTheme || "default" });
+            updateUserUI(); window.renderShop(type);
+        };
+
+        window.buyItem = async (type, id, price) => {
+            if (userData.tag !== 'ADMIN' && (userData.coins || 0) < price) return window.notify("Koin tidak cukup!");
+            if (userData.tag !== 'ADMIN') userData.coins -= price;
+            if (type === 'icons') { if (!userData.skins) userData.skins = ["default"]; userData.skins.push(id); userData.activeSkin = id; }
+            else { if (!userData.themes) userData.themes = ["default"]; userData.themes.push(id); userData.activeTheme = id; applyTheme(id); }
+            await updateDoc(doc(db, 'users', userData.username), { coins: userData.coins || 0, skins: userData.skins, themes: userData.themes, activeSkin: userData.activeSkin, activeTheme: userData.activeTheme });
+            updateUserUI(); window.renderShop(type);
+        };
+
+        // --- AUTH & DATA SYNC ---
+        onAuthStateChanged(auth, async (user) => { if (user) currentUser = user; else signInAnonymously(auth); });
 
         document.getElementById('login-btn').addEventListener('click', async () => {
             let input = document.getElementById('username-input').value.trim().toUpperCase();
@@ -318,280 +426,267 @@
             const codes = { "081249781394": "ADMIN", "0812VIP": "VIP", "0812PRO": "PRO" };
             let tag = ""; let finalName = input;
             for (const [code, tagName] of Object.entries(codes)) { if (input.startsWith(code)) { tag = tagName; finalName = input.replace(code, "").trim() || "ADMIN_USER"; break; } }
-
             const userDocRef = doc(db, 'users', finalName);
             const userDoc = await getDoc(userDocRef);
-            
             if (userDoc.exists()) {
                 const data = userDoc.data();
-                userData = { ...userData, ...data, skins: data.skins || ["default"], themes: data.themes || ["default"], activeSkin: data.activeSkin || "default", activeTheme: data.activeTheme || "default", coins: data.coins || 0 };
+                userData = { ...userData, ...data, stats: data.stats || { wins: 0, losses: 0, draws: 0 } };
             } else {
-                userData = { username: finalName, tag: tag, coins: tag === 'ADMIN' ? 999999999 : 500, skins: ["default"], themes: ["default"], activeSkin: "default", activeTheme: "default", lastSeen: Date.now() };
+                userData = { username: finalName, tag: tag, coins: tag === 'ADMIN' ? 999999999 : 500, skins: ["default"], themes: ["default"], activeSkin: "default", activeTheme: "default", lastDailyClaim: 0, stats: { wins: 0, losses: 0, draws: 0 }, lastSeen: Date.now() };
                 await setDoc(userDocRef, userData);
             }
             if (tag === 'ADMIN') { userData.tag = tag; userData.coins = 999999999; }
             applyTheme(userData.activeTheme);
-            updateUserUI(); showScreen('mode');
+            updateUserUI(); window.showScreen('mode');
+            fetchLeaderboard();
         });
 
-        document.getElementById('logout-btn').addEventListener('click', async () => { try { if (gameListener) gameListener(); await signOut(auth); window.location.reload(); } catch (e) { console.error(e); } });
+        document.getElementById('claim-daily-btn').addEventListener('click', async () => {
+            const now = Date.now();
+            const lastClaim = userData.lastDailyClaim || 0;
+            if (now - lastClaim < 24 * 60 * 60 * 1000) return window.notify("Sabar! Tersedia setiap 24 jam.");
+            userData.coins += 250;
+            userData.lastDailyClaim = now;
+            await updateDoc(doc(db, 'users', userData.username), { coins: userData.coins, lastDailyClaim: now });
+            window.notify("+250 Koin diklaim!");
+            updateUserUI();
+        });
 
+        // --- BUTTONS ---
+        document.getElementById('next-round-btn-action').addEventListener('click', async () => {
+            if (gameMode === 'pvp') await updateDoc(doc(db, 'rooms', currentGameId), { [isPlayer1 ? 'p1Ready' : 'p2Ready']: true });
+            else { aiState.currentRound++; resetGameUI(); updateRoundUI(aiState); }
+        });
+
+        document.getElementById('final-rematch-btn-action').addEventListener('click', async () => {
+            if (gameMode === 'pvp') await updateDoc(doc(db, 'rooms', currentGameId), { p1Score: 0, p2Score: 0, p1Choice: null, p2Choice: null, p1Ready: false, p2Ready: false, currentRound: 1, status: 'playing' });
+            else startPvAI();
+        });
+
+        document.getElementById('create-room-btn').addEventListener('click', async () => {
+            const bet = parseInt(document.getElementById('bet-input').value) || 0;
+            if (userData.tag !== 'ADMIN' && (userData.coins || 0) < bet) return window.notify("Koin tidak cukup!");
+            const roomId = Math.random().toString(36).substring(2, 7).toUpperCase();
+            currentGameId = roomId; isPlayer1 = true;
+            try {
+                const roomRef = doc(db, 'rooms', roomId);
+                await setDoc(roomRef, { p1: currentUser.uid, p1Name: userData.username, p1Tag: userData.tag, p1Skin: userData.activeSkin, p1Theme: userData.activeTheme, p2: null, p1Choice: null, p2Choice: null, p1Score: 0, p2Score: 0, p1Ready: false, p2Ready: false, currentRound: 1, maxRounds: selectedMaxRounds, betAmount: bet, status: 'waiting', timestamp: Date.now(), emoji: null });
+                document.getElementById('lobby-id-display').textContent = roomId;
+                document.getElementById('lobby-round-info').textContent = `${selectedMaxRounds} Babak`;
+                document.getElementById('lobby-bet-info').textContent = `Bet: ${bet.toLocaleString()}`;
+                window.showScreen('waiting');
+                if (gameListener) gameListener();
+                gameListener = onSnapshot(roomRef, (snap) => { if (snap.exists() && snap.data().p2) joinGame(roomId, true); });
+            } catch (e) { console.error(e); }
+        });
+
+        document.getElementById('join-room-btn').addEventListener('click', async () => {
+            const roomId = document.getElementById('join-id-input').value.trim().toUpperCase(); if (!roomId) return;
+            const roomRef = doc(db, 'rooms', roomId);
+            try {
+                const snap = await getDoc(roomRef); if (!snap.exists()) return window.notify("Room tidak ditemukan!");
+                const data = snap.data(); if (data.p2) return window.notify("Room Penuh!");
+                if (userData.tag !== 'ADMIN' && (userData.coins || 0) < data.betAmount) return window.notify("Koin tidak cukup!");
+                await updateDoc(roomRef, { p2: currentUser.uid, p2Name: userData.username, p2Tag: userData.tag, p2Skin: userData.activeSkin, p2Theme: userData.activeTheme, status: 'playing' });
+                joinGame(roomId, false);
+            } catch (e) { console.error(e); }
+        });
+
+        document.getElementById('cancel-room-btn-action').addEventListener('click', async () => { if (gameListener) gameListener(); if (currentGameId && isPlayer1) await deleteDoc(doc(db, 'rooms', currentGameId)); window.showScreen('pvpMenu'); });
+
+        // --- CORE HELPERS ---
         function applyTheme(themeId) { 
-            const overlay = document.getElementById('theme-overlay');
-            overlay.innerHTML = '';
+            const overlay = document.getElementById('theme-overlay'); overlay.innerHTML = '';
             document.body.className = "flex items-center justify-center p-4 " + (THEME_SETS[themeId]?.class || '');
-            
-            const pCount = themeId === 'default' ? 0 : 20;
-            const pClass = themeId === 'sakura' ? 'sakura-petal' : (themeId === 'ocean' ? 'ocean-bubble' : 'magma-ember');
-            
-            if (pCount > 0) {
-                for(let i=0; i<pCount; i++) {
-                    const p = document.createElement('div');
-                    p.className = `particle ${pClass}`;
-                    const size = Math.random() * 15 + 5;
-                    p.style.width = size + 'px';
-                    p.style.height = (themeId === 'sakura' ? size * 0.8 : size) + 'px';
-                    p.style.left = Math.random() * 100 + 'vw';
-                    p.style.animationDuration = (Math.random() * 5 + 5) + 's';
-                    p.style.animationDelay = Math.random() * 5 + 's';
+            const pClass = themeId === 'sakura' ? 'sakura-petal' : (themeId === 'ocean' ? 'ocean-bubble' : (themeId === 'magma' ? 'magma-ember' : ''));
+            if (pClass) {
+                for(let i=0; i<15; i++) {
+                    const p = document.createElement('div'); p.className = `particle ${pClass}`;
+                    const size = Math.random() * 20 + 5; p.style.width = size + 'px'; p.style.height = (themeId === 'sakura' ? size * 0.8 : size) + 'px';
+                    p.style.left = Math.random() * 100 + 'vw'; p.style.animationDuration = (Math.random() * 8 + 4) + 's'; p.style.animationDelay = Math.random() * 5 + 's';
                     overlay.appendChild(p);
                 }
             }
         }
 
-        function getTagHtml(tag, extraClass = "") { if (!tag) return ''; const tagLower = tag.toLowerCase(); return `<span class="tag-base tag-${tagLower} ${extraClass}">${tag}</span>`; }
+        async function fetchLeaderboard() {
+            try {
+                const querySnapshot = await getDocs(collection(db, "users"));
+                let p = []; querySnapshot.forEach(d => p.push(d.data()));
+                p.sort((a,b) => (b.coins || 0) - (a.coins || 0));
+                const list = document.getElementById('leaderboard-list'); if(!list) return;
+                list.innerHTML = '';
+                p.slice(0, 5).forEach((item, i) => {
+                    const row = document.createElement('div'); row.className = 'leaderboard-row';
+                    row.innerHTML = `<div class="flex items-center gap-2"><span class="font-black text-indigo-400">${i+1}</span><span class="font-bold uppercase text-white truncate w-24">${item.username}</span></div><span class="text-amber-400 font-black">${(item.coins || 0).toLocaleString()}</span>`;
+                    list.appendChild(row);
+                });
+            } catch (e) { console.error(e); }
+        }
 
         function updateUserUI() {
-            const container = document.getElementById('display-name-container');
-            const getTag = (t) => t ? `<span class="tag-base tag-${t.toLowerCase()} mb-1 text-white">${t}</span>` : '';
-            container.innerHTML = `${getTag(userData.tag)}<span class="font-black text-white text-2xl uppercase tracking-tighter italic">${userData.username}</span>`;
+            const winsEl = document.getElementById('stat-wins');
+            if(winsEl) {
+                winsEl.textContent = userData.stats?.wins || 0;
+                document.getElementById('stat-losses').textContent = userData.stats?.losses || 0;
+                document.getElementById('stat-draws').textContent = userData.stats?.draws || 0;
+            }
+            const getTag = (t) => t ? `<span class="tag-base tag-${t.toLowerCase()} mb-1 text-white text-[9px] border px-2 py-0.5 rounded-full">${t}</span>` : '';
+            document.getElementById('display-name-container').innerHTML = `${getTag(userData.tag)}<span class="font-black text-white text-3xl uppercase tracking-tighter italic">${userData.username}</span>`;
             document.getElementById('user-coins').textContent = userData.tag === 'ADMIN' ? '∞' : (userData.coins || 0).toLocaleString();
             document.getElementById('shop-coins').textContent = userData.tag === 'ADMIN' ? '∞' : (userData.coins || 0).toLocaleString();
+            
+            const badgeRich = document.getElementById('badge-rich');
+            if(badgeRich) {
+                badgeRich.classList.toggle('unlocked', (userData.coins || 0) >= 5000);
+                document.getElementById('badge-elite').classList.toggle('unlocked', (userData.stats?.wins || 0) >= 50);
+            }
             applySkinToControls();
+        }
+
+        function spawnEmoji(target, icon) {
+            const anchor = document.getElementById(`${target}-emoji-anchor`);
+            if (!anchor) return;
+            const el = document.createElement('div'); el.className = 'emoji-bubble'; el.textContent = icon;
+            anchor.appendChild(el);
+            setTimeout(() => el.remove(), 2000);
         }
 
         function applySkinToControls() {
             const skin = SKIN_SETS[userData.activeSkin || 'default'];
-            document.getElementById('skin-batu').textContent = skin.batu;
-            document.getElementById('skin-kertas').textContent = skin.kertas;
-            document.getElementById('skin-gunting').textContent = skin.gunting;
-            ['btn-batu', 'btn-kertas', 'btn-gunting'].forEach(id => {
-                const btn = document.getElementById(id);
-                btn.className = `btn-choice aspect-square rounded-[2rem] flex flex-col items-center justify-center border border-white/5 bg-white/5 text-white ${skin.class}`;
+            const batu = document.getElementById('skin-batu');
+            if(batu) {
+                batu.textContent = skin.batu;
+                document.getElementById('skin-kertas').textContent = skin.kertas;
+                document.getElementById('skin-gunting').textContent = skin.gunting;
+            }
+            document.querySelectorAll('.btn-game-choice').forEach(btn => {
+                btn.className = `btn-game-choice btn-choice aspect-square rounded-[2rem] flex flex-col items-center justify-center border-2 border-white/10 bg-white/5 text-white ${skin.class}`;
             });
         }
 
-        window.renderShop = (type) => {
-            const list = document.getElementById('skin-list'); list.innerHTML = '';
-            const btnIcons = document.getElementById('tab-icons');
-            const btnThemes = document.getElementById('tab-themes');
-            
-            btnIcons.className = type === 'icons' ? 'flex-1 py-3 rounded-xl bg-indigo-600 font-bold text-[10px] uppercase text-white' : 'flex-1 py-3 rounded-xl bg-white/5 font-bold text-[10px] uppercase text-slate-400';
-            btnThemes.className = type === 'themes' ? 'flex-1 py-3 rounded-xl bg-indigo-600 font-bold text-[10px] uppercase text-white' : 'flex-1 py-3 rounded-xl bg-white/5 font-bold text-[10px] uppercase text-slate-400';
-
-            if (type === 'icons') {
-                Object.entries(SKIN_SETS).forEach(([id, set]) => {
-                    const isOwned = (userData.skins || ["default"]).includes(id);
-                    const isActive = userData.activeSkin === id;
-                    const card = document.createElement('div');
-                    card.className = `glass p-4 rounded-3xl flex items-center justify-between border transition-all ${isActive ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/5'}`;
-                    card.innerHTML = `
-                        <div class="flex items-center gap-4"><div class="w-16 h-16 bg-white/5 rounded-2xl flex items-center justify-center text-4xl ${set.class}">${set.batu}</div><div class="text-left"><span class="rarity-tag rarity-${set.rarity.toLowerCase()}">${set.rarity}</span><h3 class="font-black text-lg uppercase mt-1">${id}</h3></div></div>
-                        <div class="text-right">
-                            ${isOwned ? `<button onclick="equipItem('skin', '${id}')" class="px-6 py-2 ${isActive ? 'bg-indigo-500 text-white' : 'bg-white/10 text-slate-400'} rounded-xl text-[10px] font-black uppercase">${isActive ? 'AKTIF' : 'PAKAI'}</button>` :
-                            `<button onclick="buyItem('skin', '${id}', ${set.price})" class="px-6 py-2 bg-amber-500 hover:bg-amber-400 rounded-xl font-black text-black"><i class="fas fa-coins text-[8px]"></i> ${set.price.toLocaleString()}</button>`}
-                        </div>`;
-                    list.appendChild(card);
-                });
-            } else {
-                Object.entries(THEME_SETS).forEach(([id, set]) => {
-                    const isOwned = (userData.themes || ["default"]).includes(id);
-                    const isActive = userData.activeTheme === id;
-                    const card = document.createElement('div');
-                    card.className = `glass p-4 rounded-3xl flex items-center justify-between border transition-all ${isActive ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/5'}`;
-                    card.innerHTML = `
-                        <div class="flex items-center gap-4"><div class="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center"><i class="fas fa-palette text-2xl text-indigo-400"></i></div><div class="text-left"><span class="rarity-tag rarity-${set.rarity.toLowerCase()}">${set.rarity}</span><h3 class="font-black text-lg uppercase mt-1">${set.name}</h3></div></div>
-                        <div class="text-right">
-                            ${isOwned ? `<button onclick="equipItem('theme', '${id}')" class="px-6 py-2 ${isActive ? 'bg-indigo-500 text-white' : 'bg-white/10 text-slate-400'} rounded-xl text-[10px] font-black uppercase">${isActive ? 'AKTIF' : 'PAKAI'}</button>` :
-                            `<button onclick="buyItem('theme', '${id}', ${set.price})" class="px-6 py-2 bg-amber-500 hover:bg-amber-400 rounded-xl font-black text-black"><i class="fas fa-coins text-[8px]"></i> ${set.price.toLocaleString()}</button>`}
-                        </div>`;
-                    list.appendChild(card);
-                });
-            }
-        };
-
-        window.showShop = () => { renderShop('icons'); showScreen('shop'); };
-
-        window.buyItem = async (type, id, price) => {
-            const isAdmin = userData.tag === 'ADMIN';
-            if (!isAdmin && (userData.coins || 0) < price) return alert("Koin tidak cukup!");
-            if (!isAdmin) userData.coins -= price;
-            if (type === 'skin') { if (!userData.skins) userData.skins = ["default"]; userData.skins.push(id); userData.activeSkin = id; }
-            else { if (!userData.themes) userData.themes = ["default"]; userData.themes.push(id); userData.activeTheme = id; applyTheme(id); }
-            await updateDoc(doc(db, 'users', userData.username), { coins: userData.coins || 0, skins: userData.skins, themes: userData.themes, activeSkin: userData.activeSkin, activeTheme: userData.activeTheme });
-            updateUserUI(); renderShop(type === 'skin' ? 'icons' : 'themes');
-        };
-
-        window.equipItem = async (type, id) => {
-            if (type === 'skin') userData.activeSkin = id; else { userData.activeTheme = id; applyTheme(id); }
-            await updateDoc(doc(db, 'users', userData.username), { activeSkin: userData.activeSkin || "default", activeTheme: userData.activeTheme || "default" });
-            updateUserUI(); renderShop(type === 'skin' ? 'icons' : 'themes');
-        };
-
-        window.goToRounds = (mode) => { gameMode = mode; showScreen('round'); };
-        window.selectRounds = (num) => { selectedMaxRounds = num; if (gameMode === 'pvai') startPvAI(); else showScreen('pvpMenu'); };
-
-        window.createRoom = async () => {
-            const bet = parseInt(document.getElementById('bet-input').value) || 0;
-            if (userData.tag !== 'ADMIN' && (userData.coins || 0) < bet) return alert("Koin tidak cukup!");
-            const roomId = Math.random().toString(36).substring(2, 7).toUpperCase();
-            currentGameId = roomId; isPlayer1 = true;
-            try {
-                const roomRef = doc(db, 'rooms', roomId);
-                await setDoc(roomRef, { p1: currentUser.uid, p1Name: userData.username, p1Tag: userData.tag, p1Skin: userData.activeSkin, p1Theme: userData.activeTheme, p2: null, p1Choice: null, p2Choice: null, p1Score: 0, p2Score: 0, p1Ready: false, p2Ready: false, currentRound: 1, maxRounds: selectedMaxRounds, betAmount: bet, status: 'waiting', timestamp: Date.now() });
-                document.getElementById('lobby-id-display').textContent = roomId;
-                document.getElementById('lobby-round-info').textContent = `${selectedMaxRounds} Babak`;
-                document.getElementById('lobby-bet-info').textContent = `Bet: ${bet.toLocaleString()}`;
-                showScreen('waiting');
-                if (gameListener) gameListener();
-                gameListener = onSnapshot(roomRef, (snap) => { if (snap.exists() && snap.data().p2) joinGame(roomId, true); });
-            } catch (e) { console.error(e); }
-        };
-
-        window.joinRoom = async () => {
-            const roomId = document.getElementById('join-id-input').value.trim().toUpperCase(); if (!roomId) return;
-            const roomRef = doc(db, 'rooms', roomId);
-            try {
-                const snap = await getDoc(roomRef); if (!snap.exists()) return alert("Room tidak ditemukan!");
-                const data = snap.data(); if (data.p2) return alert("Penuh!");
-                if (userData.tag !== 'ADMIN' && (userData.coins || 0) < data.betAmount) return alert("Koin tidak cukup!");
-                await updateDoc(roomRef, { p2: currentUser.uid, p2Name: userData.username, p2Tag: userData.tag, p2Skin: userData.activeSkin, p2Theme: userData.activeTheme, status: 'playing' });
-                joinGame(roomId, false);
-            } catch (e) { console.error(e); }
-        };
-
         function startPvAI() {
-            gameMode = 'pvai'; isPlayer1 = true; aiState = { p1Score: 0, p2Score: 0, currentRound: 1, maxRounds: selectedMaxRounds, p1Skin: userData.activeSkin, p2Skin: "galaxy" };
-            resetGameUI(); currentGameId = 'local_ai'; renderHeader(userData.username, userData.tag, "Master Bot", "PRO"); updateRoundUI(aiState); showScreen('game');
+            gameMode = 'pvai'; isPlayer1 = true;
+            aiState = { p1Score: 0, p2Score: 0, currentRound: 1, maxRounds: selectedMaxRounds, p1Skin: userData.activeSkin, p2Skin: "galaxy" };
+            resetGameUI(); currentGameId = 'local_ai'; renderHeader(userData.username, userData.tag, "Master Bot", "PRO"); updateRoundUI(aiState); window.showScreen('game');
         }
-
-        let aiState = { p1Score: 0, p2Score: 0, currentRound: 1, maxRounds: 3, p1Skin: "default", p2Skin: "galaxy" };
-
-        window.makeChoice = async (choice) => {
-            if (gameMode === 'pvp') {
-                const roomRef = doc(db, 'rooms', currentGameId);
-                await updateDoc(roomRef, isPlayer1 ? { p1Choice: choice } : { p2Choice: choice });
-            } else { handlePvAIChoice(choice); }
-            document.querySelectorAll('.btn-choice').forEach(b => { const label = b.querySelector('span:nth-child(2)').textContent.toLowerCase(); b.classList.toggle('choice-selected', label === choice); });
-        };
 
         function handlePvAIChoice(playerChoice) {
-            if (document.querySelectorAll('.btn-choice')[0].disabled) return;
-            document.querySelectorAll('.btn-choice').forEach(b => b.disabled = true);
-            document.getElementById('game-message').innerHTML = '<p class="text-indigo-400 animate-pulse text-white text-center">Bot sedang menganalisa...</p>';
-            setTimeout(() => { const win = getWinner(playerChoice, 'batu'); if (win === 'p1') aiState.p1Score++; else if (win === 'p2') aiState.p2Score++; updateRoundUI(aiState); revealResult({ ...aiState, p1Choice: playerChoice, p2Choice: 'batu', roundWinner: win }); }, 1200);
+            document.querySelectorAll('.btn-game-choice').forEach(b => b.disabled = true);
+            document.getElementById('game-message').innerHTML = '<div class="glass px-6 py-2 rounded-full border-white/20"><p class="text-indigo-400 animate-pulse text-white text-center">Bot berfikir...</p></div>';
+            setTimeout(() => { 
+                const choices = ['batu', 'kertas', 'gunting']; const aiChoice = choices[Math.floor(Math.random()*3)];
+                const win = getWinner(playerChoice, aiChoice); if (win === 'p1') aiState.p1Score++; else if (win === 'p2') aiState.p2Score++; 
+                updateRoundUI(aiState); revealResult({ ...aiState, p1Choice: playerChoice, p2Choice: aiChoice, roundWinner: win }); 
+            }, 1200);
         }
 
-        function joinGame(gameId, isP1) { currentGameId = gameId; isPlayer1 = isP1; resetGameUI(); if (gameListener) gameListener(); gameListener = onSnapshot(doc(db, 'rooms', gameId), (snap) => { if (snap.exists()) syncPvP(snap.data()); }); showScreen('game'); }
+        function joinGame(gameId, isP1) { 
+            currentGameId = gameId; isPlayer1 = isP1; 
+            resetGameUI(); 
+            if (gameListener) gameListener(); 
+            gameListener = onSnapshot(doc(db, 'rooms', gameId), (snap) => { if (snap.exists()) syncPvP(snap.data()); }); 
+            window.showScreen('game'); 
+        }
 
         function syncPvP(data) {
             renderHeader(data.p1Name, data.p1Tag, data.p2Name, data.p2Tag);
             updateRoundUI(data);
-            if (data.betAmount > 0) { const betDisp = document.getElementById('current-bet-display'); betDisp.textContent = `Bet: ${data.betAmount.toLocaleString()}`; betDisp.classList.remove('hidden'); }
-            
+            if (data.betAmount > 0) { const betDisp = document.getElementById('current-bet-display'); if(betDisp) { betDisp.textContent = `Bet: ${data.betAmount.toLocaleString()}`; betDisp.classList.remove('hidden'); } }
+            if (data.emoji && Date.now() - data.emoji.time < 2000) spawnEmoji(data.emoji.sender === (isPlayer1 ? 'p1' : 'p2') ? 'p1' : 'p2', data.emoji.icon);
             const msg = document.getElementById('game-message');
-            const myChoice = isPlayer1 ? data.p1Choice : data.p2Choice;
-            const enemyChoice = isPlayer1 ? data.p2Choice : data.p1Choice;
-            const myReady = isPlayer1 ? data.p1Ready : data.p2Ready;
-            const enemyReady = isPlayer1 ? data.p2Ready : data.p1Ready;
-
             if (data.p1Choice && data.p2Choice) {
-                const win = getWinner(data.p1Choice, data.p2Choice);
-                revealResult({ ...data, roundWinner: win });
-                if (myReady && !enemyReady) { msg.innerHTML = '<div class="glass px-6 py-2 rounded-full border-amber-500/40"><p class="text-amber-400 animate-pulse uppercase text-[10px] font-black tracking-widest text-center">Menunggu lawan...</p></div>'; }
-                else if (!myReady && enemyReady) { msg.innerHTML = '<div class="glass px-6 py-2 rounded-full border-indigo-500/40"><p class="text-indigo-400 uppercase text-[10px] font-black tracking-widest text-center">Lawan siap lanjut!</p></div>'; }
+                revealResult({ ...data, roundWinner: getWinner(data.p1Choice, data.p2Choice) });
+                if (isPlayer1 ? data.p1Ready : data.p2Ready) msg.innerHTML = '<div class="glass px-8 py-3 rounded-full border-amber-500/40 shadow-xl text-amber-400"><p class="animate-pulse text-xs font-black uppercase text-center">Menunggu lawan...</p></div>';
+                else if (isPlayer1 ? data.p2Ready : data.p1Ready) msg.innerHTML = '<div class="glass px-8 py-3 rounded-full border-indigo-500/40 shadow-xl text-indigo-400"><p class="text-xs font-black uppercase text-center">Lawan siap!</p></div>';
                 if (data.p1Ready && data.p2Ready && isPlayer1) {
-                    const winRound = getWinner(data.p1Choice, data.p2Choice);
-                    updateDoc(doc(db, 'rooms', currentGameId), { p1Score: winRound === 'p1' ? data.p1Score + 1 : data.p1Score, p2Score: winRound === 'p2' ? data.p2Score + 1 : data.p2Score, p1Choice: null, p2Choice: null, p1Ready: false, p2Ready: false, currentRound: data.currentRound + 1 });
+                    const w = getWinner(data.p1Choice, data.p2Choice);
+                    updateDoc(doc(db, 'rooms', currentGameId), { p1Score: w === 'p1' ? data.p1Score + 1 : data.p1Score, p2Score: w === 'p2' ? data.p2Score + 1 : data.p2Score, p1Choice: null, p2Choice: null, p1Ready: false, p2Ready: false, currentRound: data.currentRound + 1, emoji: null });
                 }
-            } else {
-                if (myChoice && !enemyChoice) { msg.innerHTML = '<div class="glass px-6 py-2 rounded-full border-white/10"><p class="text-slate-400 animate-pulse uppercase text-[10px] font-black tracking-widest text-center">Lawan sedang memilih...</p></div>'; }
-                else if (data.status === 'playing' && !data.p1Choice && !data.p2Choice) { resetGameUI(); }
-            }
-        }
-
-        function renderHeader(n1, t1, n2, t2) {
-            document.getElementById('p1-name-wrapper').innerHTML = `${getTagHtml(t1, "mb-1")}<p class="text-xs font-black uppercase text-slate-300 truncate w-full text-center text-white">${n1}${isPlayer1 ? ' (Kamu)' : ''}</p>`;
-            document.getElementById('p2-name-wrapper').innerHTML = `${getTagHtml(t2, "mb-1")}<p class="text-xs font-black uppercase text-slate-300 truncate w-full text-center text-white">${n2}${!isPlayer1 ? ' (Kamu)' : ''}</p>`;
+            } else if ((isPlayer1 ? data.p1Choice : data.p2Choice) && !(isPlayer1 ? data.p2Choice : data.p1Choice)) msg.innerHTML = '<div class="glass px-8 py-3 rounded-full border-white/10 text-white"><p class="text-slate-400 animate-pulse text-xs font-black uppercase text-center">Lawan sedang memilih...</p></div>';
+            else if (data.status === 'playing' && !data.p1Choice && !data.p2Choice) resetGameUI();
         }
 
         function getWinner(c1, c2) { if (c1 === c2) return 'draw'; return ((c1 === 'batu' && c2 === 'gunting') || (c1 === 'gunting' && c2 === 'kertas') || (c1 === 'kertas' && c2 === 'batu')) ? 'p1' : 'p2'; }
+        
+        function renderHeader(n1, t1, n2, t2) {
+            document.getElementById('p1-name-wrapper').innerHTML = `<p class="text-white font-bold">${n1}${isPlayer1 ? ' (Anda)' : ''}</p>`;
+            document.getElementById('p2-name-wrapper').innerHTML = `<p class="text-white font-bold">${n2}${!isPlayer1 ? ' (Anda)' : ''}</p>`;
+        }
+
+        function updateRoundUI(data) { 
+            const p1ScoreEl = document.getElementById('p1-score');
+            if(p1ScoreEl) {
+                p1ScoreEl.textContent = data.p1Score; 
+                document.getElementById('p2-score').textContent = data.p2Score; 
+                document.getElementById('current-round-display').textContent = `${data.currentRound} / ${data.maxRounds}`; 
+            }
+        }
 
         function revealResult(data) {
+            document.getElementById('arena-box').classList.add('shake-screen');
+            setTimeout(() => document.getElementById('arena-box').classList.remove('shake-screen'), 400);
             const s1 = SKIN_SETS[data.p1Skin || 'default']; const s2 = SKIN_SETS[data.p2Skin || 'default'];
             const d1 = document.getElementById('p1-display'); const d2 = document.getElementById('p2-display');
             const l1 = document.getElementById('p1-choice-label'); const l2 = document.getElementById('p2-choice-label');
-
-            d1.textContent = s1[data.p1Choice]; d1.className = `w-full aspect-square max-w-[130px] bg-white/5 rounded-[3rem] flex items-center justify-center text-8xl border border-white/10 transition-all duration-500 ${s1.class}`;
-            d2.textContent = s2[data.p2Choice]; d2.className = `w-full aspect-square max-w-[130px] bg-white/5 rounded-[3rem] flex items-center justify-center text-8xl border border-white/10 transition-all duration-500 ${s2.class}`;
-            
+            d1.textContent = s1[data.p1Choice]; d1.className = `w-28 h-28 bg-white/5 rounded-[2.5rem] flex items-center justify-center text-7xl border-2 border-white/10 transition-all duration-500 ${s1.class}`;
+            d2.textContent = s2[data.p2Choice]; d2.className = `w-28 h-28 bg-white/5 rounded-[2.5rem] flex items-center justify-center text-7xl border-2 border-white/10 transition-all duration-500 ${s2.class}`;
             l1.textContent = data.p1Choice; l2.textContent = data.p2Choice;
-            l1.className = "choice-label text-center " + (data.p1Skin === 'divine' ? 'divine-label-fix' : (data.p1Skin === 'gold' ? 'gold-label-fix' : (data.p1Skin === 'cyber' ? 'cyber-label-fix' : '')));
-            l2.className = "choice-label text-center " + (data.p2Skin === 'divine' ? 'divine-label-fix' : (data.p2Skin === 'gold' ? 'gold-label-fix' : (data.p2Skin === 'cyber' ? 'cyber-label-fix' : '')));
-
-            const msg = document.getElementById('game-message'); const won = (data.roundWinner === 'p1' && isPlayer1) || (data.roundWinner === 'p2' && !isPlayer1);
-            if (data.roundWinner === 'draw') msg.innerHTML = '<span class="text-amber-400 text-4xl font-black uppercase text-center animate-bounce">Seri!</span>';
-            else msg.innerHTML = `<span class="${won ? 'text-indigo-400' : 'text-purple-400'} text-5xl font-black uppercase scale-110 transition-all text-center text-white drop-shadow-xl">${won ? 'MENANG!' : 'KALAH!'}</span>`;
+            l1.className = "choice-label " + (data.p1Skin === 'divine' ? 'divine-label-fix' : (data.p1Skin === 'gold' ? 'gold-label-fix' : ''));
+            l2.className = "choice-label " + (data.p2Skin === 'divine' ? 'divine-label-fix' : (data.p2Skin === 'gold' ? 'gold-label-fix' : ''));
+            const won = (data.roundWinner === 'p1' && isPlayer1) || (data.roundWinner === 'p2' && !isPlayer1);
+            const msg = document.getElementById('game-message');
+            if (data.roundWinner === 'draw') msg.innerHTML = '<span class="text-amber-400 text-5xl font-black italic uppercase animate-bounce">Seri!</span>';
+            else msg.innerHTML = `<span class="${won ? 'text-indigo-400' : 'text-purple-400'} text-6xl font-black uppercase drop-shadow-3xl">${won ? 'MENANG!' : 'KALAH!'}</span>`;
             document.getElementById('game-controls').classList.add('hidden'); document.getElementById('game-actions').classList.remove('hidden');
             if (data.currentRound >= data.maxRounds) handleFinalWinner(data);
-            else { document.getElementById('next-round-btn').classList.remove('hidden'); document.getElementById('final-rematch-btn').classList.add('hidden'); }
+            else { document.getElementById('next-round-btn-action').classList.remove('hidden'); document.getElementById('final-rematch-btn-action').classList.add('hidden'); }
         }
 
         async function handleFinalWinner(data) {
-            document.getElementById('next-round-btn').classList.add('hidden'); document.getElementById('final-rematch-btn').classList.remove('hidden');
+            document.getElementById('next-round-btn-action').classList.add('hidden'); document.getElementById('final-rematch-btn-action').classList.remove('hidden');
             const isWinner = (data.p1Score > data.p2Score && isPlayer1) || (data.p2Score > data.p1Score && !isPlayer1);
             const isDraw = data.p1Score === data.p2Score; let coinMsg = "";
-            if (userData.tag === 'ADMIN') coinMsg = "ADMIN STATUS: UNLIMITED POWER";
+            if (!userData.stats) userData.stats = { wins: 0, losses: 0, draws: 0 };
+            if (isWinner) userData.stats.wins++; else if (isDraw) userData.stats.draws++; else userData.stats.losses++;
+            if (userData.tag === 'ADMIN') coinMsg = "ADMIN UNLIMITED POWER";
             else if (gameMode === 'pvai' && isWinner) { coinMsg = "+50 Koin!"; await updateCoins(50); }
             else if (gameMode === 'pvp' && data.betAmount > 0 && !isDraw) {
                 if (isWinner) { coinMsg = `+${data.betAmount.toLocaleString()} Koin!`; await updateCoins(data.betAmount); }
                 else { coinMsg = `-${data.betAmount.toLocaleString()} Koin!`; await updateCoins(-data.betAmount); }
             }
-            document.getElementById('game-message').innerHTML = `<div class="text-center p-4 text-white"><p class="text-[10px] font-black uppercase text-slate-500 mb-1">Pertempuran Selesai</p><p class="text-6xl font-black ${isWinner ? 'text-amber-400' : (isDraw ? 'text-white/60' : 'text-red-500')} uppercase italic drop-shadow-xl text-center text-white">${isWinner ? 'JUARA!' : (isDraw ? 'SERI!' : 'KALAH!')}</p><p class="text-sm font-black text-amber-500 mt-3 text-center text-white">${coinMsg}</p></div>`;
+            document.getElementById('game-message').innerHTML = `<div class="text-center p-4 text-white"><p class="text-6xl font-black ${isWinner ? 'text-amber-400' : (isDraw ? 'text-white/60' : 'text-red-500')} uppercase italic drop-shadow-3xl text-center">${isWinner ? 'JUARA!' : (isDraw ? 'SERI!' : 'KALAH!')}</p><p class="text-sm font-black text-amber-500 mt-4">${coinMsg}</p></div>`;
+            await updateDoc(doc(db, 'users', userData.username), { stats: userData.stats });
+            updateUserUI();
         }
 
-        async function updateCoins(amount) { if (userData.tag === 'ADMIN') return; userData.coins = (userData.coins || 0) + amount; await updateDoc(doc(db, 'users', userData.username), { coins: userData.coins }); updateUserUI(); }
-
-        document.getElementById('next-round-btn').addEventListener('click', async () => {
-            if (gameMode === 'pvp') {
-                const roomRef = doc(db, 'rooms', currentGameId);
-                await updateDoc(roomRef, isPlayer1 ? { p1Ready: true } : { p2Ready: true });
-            } else { aiState.currentRound++; resetGameUI(); updateRoundUI(aiState); }
-        });
-
-        document.getElementById('final-rematch-btn').addEventListener('click', async () => {
-            if (gameMode === 'pvp') { await updateDoc(doc(db, 'rooms', currentGameId), { p1Score: 0, p2Score: 0, p1Choice: null, p2Choice: null, p1Ready: false, p2Ready: false, currentRound: 1, status: 'playing' }); }
-            else { startPvAI(); }
-        });
-
-        function updateRoundUI(data) { document.getElementById('p1-score').textContent = data.p1Score; document.getElementById('p2-score').textContent = data.p2Score; document.getElementById('current-round-display').textContent = `${data.currentRound} / ${data.maxRounds}`; }
-
         function resetGameUI() {
-            const skin = SKIN_SETS[userData.activeSkin || 'default'];
-            document.getElementById('current-bet-display').classList.add('hidden');
+            const betDisp = document.getElementById('current-bet-display'); if(betDisp) betDisp.classList.add('hidden');
             document.getElementById('p1-display').innerHTML = '<i class="fas fa-question text-white/5"></i>';
-            document.getElementById('p1-display').className = `w-full aspect-square max-w-[130px] bg-white/5 rounded-[3rem] flex items-center justify-center text-8xl border border-white/10 transition-all duration-500 ${skin.class}`;
+            document.getElementById('p1-display').className = `w-28 h-28 bg-white/5 rounded-3xl flex items-center justify-center text-7xl border-2 border-white/10`;
             document.getElementById('p2-display').innerHTML = '<i class="fas fa-question text-white/5"></i>';
-            document.getElementById('p2-display').className = 'w-full aspect-square max-w-[130px] bg-white/5 rounded-[3rem] flex items-center justify-center text-8xl border border-white/10 transition-all';
+            document.getElementById('p2-display').className = 'w-28 h-28 bg-white/5 rounded-3xl flex items-center justify-center text-7xl border-2 border-white/10';
             document.getElementById('p1-choice-label').textContent = ''; document.getElementById('p2-choice-label').textContent = '';
-            document.getElementById('game-message').innerHTML = '<p class="text-slate-500 uppercase text-xs tracking-widest font-black text-center text-white">Menentukan Serangan...</p>';
+            document.getElementById('game-message').innerHTML = '<p class="text-slate-500 uppercase text-xs tracking-widest font-black text-center text-white">Tentukan Serangan!</p>';
             document.getElementById('game-controls').classList.remove('hidden'); document.getElementById('game-actions').classList.add('hidden');
-            document.querySelectorAll('.btn-choice').forEach(b => { b.classList.remove('choice-selected'); b.disabled = false; });
+            document.querySelectorAll('.btn-game-choice').forEach(b => { b.classList.remove('choice-selected'); b.disabled = false; });
             applySkinToControls();
         }
 
-        document.getElementById('quit-btn').addEventListener('click', () => { if (gameListener) gameListener(); showScreen('mode'); });
-        document.getElementById('cancel-room-btn').addEventListener('click', async () => { if (gameListener) gameListener(); if (currentGameId && isPlayer1) await deleteDoc(doc(db, 'rooms', currentGameId)); showScreen('pvpMenu'); });
+        window.renderShop = (type) => {
+            const list = document.getElementById('skin-list'); list.innerHTML = '';
+            const set = type === 'icons' ? SKIN_SETS : THEME_SETS;
+            Object.entries(set).forEach(([id, item]) => {
+                const owned = type === 'icons' ? (userData.skins || ["default"]).includes(id) : (userData.themes || ["default"]).includes(id);
+                const active = type === 'icons' ? userData.activeSkin === id : userData.activeTheme === id;
+                const card = document.createElement('div');
+                card.className = `glass p-4 rounded-2xl flex items-center justify-between border-2 transition-all ${active ? 'border-indigo-500 bg-indigo-500/10' : 'border-white/5'}`;
+                card.innerHTML = `<div class="flex items-center gap-4 text-white"><div class="w-14 h-14 bg-white/10 rounded-xl flex items-center justify-center text-3xl ${item.class || ''}">${type === 'icons' ? item.batu : '<i class="fas fa-palette text-indigo-400"></i>'}</div><div class="text-left"><span class="rarity-tag rarity-${item.rarity.toLowerCase()}">${item.rarity}</span><h3 class="font-black uppercase text-xs">${type==='icons'?id:item.name}</h3></div></div><div class="text-right">${owned ? `<button onclick="equipItem('${type}', '${id}')" class="px-4 py-2 ${active ? 'bg-indigo-500 text-white' : 'bg-white/10 text-slate-400'} rounded-lg text-[9px] font-black uppercase">${active ? 'AKTIF' : 'PAKAI'}</button>` : `<button onclick="buyItem('${type}', '${id}', ${item.price})" class="px-4 py-2 bg-amber-500 hover:bg-amber-400 rounded-lg text-[9px] font-black text-black"><i class="fas fa-coins mr-1"></i>${item.price}</button>`}</div>`;
+                list.appendChild(card);
+            });
+        };
+
+        window.startPvAI = startPvAI;
     </script>
 </body>
 </html>
